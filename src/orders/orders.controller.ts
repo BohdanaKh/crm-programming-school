@@ -3,6 +3,7 @@ import { Controller, Get, ParseIntPipe, Query } from '@nestjs/common';
 
 import { OrdersService } from './orders.service';
 import { ApiTags } from "@nestjs/swagger";
+import { PublicOrderInfoDto } from "../common/query/order.query.dto";
 
 @ApiTags('Orders')
 @Controller('orders')
@@ -10,10 +11,7 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Get()
-  async findAll(
-    @Query('page', ParseIntPipe) page: number,
-    // @Query('perPage', ParseIntPipe) perPage: number,
-  ) {
-    return this.ordersService.findAllWithPagination(page);
+  async findAll(@Query() query: PublicOrderInfoDto) {
+    return this.ordersService.findAllWithPagination(query);
   }
 }

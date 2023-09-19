@@ -1,7 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
 import {
   IsBoolean,
   IsDate,
+  IsEnum,
   // IsEnum,
   IsNotEmpty,
   IsOptional,
@@ -37,15 +39,15 @@ export class UserCreateDto {
   @ApiProperty()
   @IsBoolean()
   @IsNotEmpty()
-  is_active: boolean;
+  isActive: boolean;
 
   @ApiProperty()
   @IsDate()
   @IsOptional()
-  last_login: Date;
+  lastLogin: Date;
 
-  // @ApiProperty()
-  // @IsEnum(Role)
-  // @IsNotEmpty()
-  // role: Role;
+  @ApiProperty()
+  @IsEnum(Role)
+  @IsNotEmpty()
+  role: Role;
 }

@@ -3,29 +3,29 @@ generator client {
 }
 
 datasource db {
-  provider          = "mysql"
-  url               = env("DATABASE_URL")
-  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+  // shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
-model Order {
-  id            Int       @id @default(autoincrement())
-  name          String?   @db.VarChar(25)
-  surname       String?   @db.VarChar(25)
-  email         String?   @db.VarChar(100)
-  phone         String?   @db.VarChar(12)
+model Orders {
+  id            Int           @id @default(autoincrement())
+  name          String?       @db.VarChar(25)
+  surname       String?       @db.VarChar(25)
+  email         String?       @db.VarChar(100)
+  phone         String?       @db.VarChar(12)
   age           Int?
-  course        String?   @db.VarChar(10)
-  course_format String?   @db.VarChar(15)
-  course_type   String?   @db.VarChar(100)
+  course        Course?
+  course_format CourseFormat?
+  course_type   CourseType?
   sum           Int?
   alreadyPaid   Int?
   group         String?
-  created_at    DateTime? @db.DateTime(6)
-  utm           String?   @db.VarChar(100)
-  msg           String?   @db.VarChar(100)
+  created_at    DateTime?     @db.DateTime(6)
+  utm           String?       @db.VarChar(100)
+  msg           String?       @db.VarChar(100)
   manager       String?
-  status        String?   @db.VarChar(15)
+  status        Status?
 }
 
 model User {
@@ -35,4 +35,40 @@ model User {
   surname   String
   isActive  Boolean
   lastLogin DateTime
+  role      Role
+}
+
+enum Role {
+  admin
+  manager
+}
+
+enum Status {
+  In_work
+  New
+  Aggre
+  Disaggre
+  Dubbing
+}
+
+enum Course {
+  FS
+  QACX
+  JCX
+  JSCX
+  FE
+  PCX
+}
+
+enum CourseType {
+  pro
+  minimal
+  premium
+  incubator
+  vip
+}
+
+enum CourseFormat {
+  static
+  online
 }
