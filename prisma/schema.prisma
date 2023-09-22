@@ -31,11 +31,12 @@ model Orders {
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
+  password  String
   name      String
   surname   String
-  isActive  Boolean
-  lastLogin DateTime
-  role      Role
+  isActive  Boolean  @default(false)
+  lastLogin DateTime @default(now())
+  role      Role     @default(manager)
 }
 
 enum Role {

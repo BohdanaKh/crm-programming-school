@@ -38,7 +38,7 @@ export class UserCreateDto {
 
   @ApiProperty()
   @IsBoolean()
-  @IsNotEmpty()
+  @IsOptional()
   isActive: boolean;
 
   @ApiProperty()
@@ -48,6 +48,6 @@ export class UserCreateDto {
 
   @ApiProperty()
   @IsEnum(Role)
-  @IsNotEmpty()
+  @IsOptional()
   role: Role;
 }

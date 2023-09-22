@@ -12,7 +12,7 @@ export class PaginatedDto<TModel> {
   countItem: number;
 
   @ApiProperty()
-  results: TModel[];
+  entities: TModel[];
 }
 
 export const ApiPaginatedResponse = <TModel extends Type<any>>(

@@ -1,43 +1,53 @@
-import { subject } from '@casl/ability';
-import {
-  Body,
-  Controller,
-  Get,
-  HttpException,
-  ParseIntPipe,
-  Post,
-  Query,
-  Req,
-} from '@nestjs/common';
-import { User } from '@prisma/client';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Query } from "@nestjs/common";
+import { ApiExtraModels, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Prisma, User } from '@prisma/client';
 
+import {
+  ApiPaginatedResponse,
+  PaginatedDto,
+} from '../common/pagination/response';
 import { PublicUserInfoDto } from '../common/query/user.query.dto';
 import { UserCreateDto } from './dto/user.create.dto';
+import { PublicUserData } from './interface/user.interface';
 import { UserService } from './users.service';
 
+// @ApiBearerAuth()
+// @UseGuards(AuthGuard())
+@ApiTags('User')
+@ApiExtraModels(PublicUserData, PaginatedDto)
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  //
-  @Post()
-  async createUser(@Req() req, @Body() userData: UserCreateDto): Promise<User> {
-    if (!req.userAbility.can('create', 'User')) {
-      throw new HttpException('Forbidden resource', 403);
-    }
-    return await this.userService.createUser(userData);
+  // @ApiResponse({ status: HttpStatus.CREATED, type: UserCreateDto })
+  @Post('create')
+  //   // if (!req.userAbility.can('create', 'User')) {
+  //   //   throw new HttpException('Forbidden resource', 403);
+  //   // }
+  create(@Body() createUserDto: Prisma.UserCreateInput): Promise<User> {
+    return this.userService.create(createUserDto);
   }
 
+  @ApiPaginatedResponse('entities', PublicUserData)
   @Get()
   async findAll(@Query() query: PublicUserInfoDto) {
     return this.userService.getAllUsers(query);
   }
-  //
-  //   @Get()
-  //   async getUserById(): Promise<User> {}
-  //
-  //   @Patch()
-  //   async updateUser(): Promise<User> {}
-  //   @Delete()
-  //   async deleteUser(): Promise<void> {}
+  @Get(':id')
+  findOne(@Param('id') id: string): Promise<User> {
+    return this.userService.findOne(+id);
+  }
+
+  @Put(':id')
+  update(
+    @Param('id') id: string,
+    @Body() updateUserDto: Prisma.UserUpdateInput,
+  ): Promise<User> {
+    return this.userService.update(+id, updateUserDto);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string): Promise<User> {
+    return this.userService.remove(+id);
+  }
 }

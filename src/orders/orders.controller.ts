@@ -1,10 +1,21 @@
-import { Controller, Get, ParseIntPipe, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Put,
+  Query,
+} from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { Orders, Prisma } from '@prisma/client';
+
+import { PublicOrderInfoDto } from '../common/query/order.query.dto';
 // import { Order } from '@prisma/client';
-
 import { OrdersService } from './orders.service';
-import { ApiTags } from "@nestjs/swagger";
-import { PublicOrderInfoDto } from "../common/query/order.query.dto";
 
+// @ApiBearerAuth()
+// @UseGuards(AuthGuard())
 @ApiTags('Orders')
 @Controller('orders')
 export class OrdersController {
@@ -13,5 +24,23 @@ export class OrdersController {
   @Get()
   async findAll(@Query() query: PublicOrderInfoDto) {
     return this.ordersService.findAllWithPagination(query);
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<Orders> {
+    return this.ordersService.findOne(+id);
+  }
+
+  @Put(':id')
+  async update(
+    @Param('id') id: string,
+    @Body() updateOrderDto: Prisma.OrdersUpdateInput,
+  ): Promise<Orders> {
+    return this.ordersService.update(+id, updateOrderDto);
+  }
+
+  @Delete(':id')
+  async remove(@Param('id') id: string): Promise<Orders> {
+    return this.ordersService.remove(+id);
   }
 }
