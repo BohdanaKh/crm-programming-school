@@ -79,13 +79,12 @@ export class OrdersService {
         },
       },
     };
-
-    const orderBy = sortingOptions[sort] || sortingOptions.created_at;
+    const orderBy =
+      sortingOptions[sort]['orderBy'] || sortingOptions.created_at['orderBy'];
 
     const limit = 25;
     const page = +query.page || 1;
     const skip = (page - 1) * limit;
-    console.log(this.prisma.orders);
     const count = await this.prisma.orders.count();
     const entities = await this.prisma.orders.findMany({
       take: limit,
