@@ -3,7 +3,6 @@ import { Orders, Prisma } from '@prisma/client';
 
 import { PrismaService } from '../common/orm/prisma.service';
 import { PaginatedDto } from '../common/pagination/response';
-// import { PaginatedDto } from '../common/pagination/response';
 import { PublicOrderInfoDto } from '../common/query/order.query.dto';
 
 @Injectable()
@@ -12,19 +11,88 @@ export class OrdersService {
   async findAllWithPagination(
     query: PublicOrderInfoDto,
   ): Promise<PaginatedDto<Orders>> {
-    // query.sort = query.sort || 'created_at';
-    // query.order = query.order || 'ASC';
+    const { sort, order } = query;
+    const sortingOptions = {
+      id: {
+        orderBy: {
+          id: order,
+        },
+      },
+      name: {
+        orderBy: {
+          name: order,
+        },
+      },
+      surname: {
+        orderBy: {
+          surname: order,
+        },
+      },
+      email: {
+        orderBy: {
+          email: order,
+        },
+      },
+      phone: {
+        orderBy: {
+          phone: order,
+        },
+      },
+      age: {
+        orderBy: {
+          age: order,
+        },
+      },
+      course: {
+        orderBy: {
+          course: order,
+        },
+      },
+      course_format: {
+        orderBy: {
+          course_format: order,
+        },
+      },
+      course_type: {
+        orderBy: {
+          course_type: order,
+        },
+      },
+      status: {
+        orderBy: {
+          status: order,
+        },
+      },
+      sum: {
+        orderBy: {
+          sum: order,
+        },
+      },
+      alreadyPaid: {
+        orderBy: {
+          alreadyPaid: order,
+        },
+      },
+      created_at: {
+        orderBy: {
+          created_at: order,
+        },
+      },
+    };
+
+    const orderBy = sortingOptions[sort] || sortingOptions.created_at;
+
     const limit = 25;
     const page = +query.page || 1;
     const skip = (page - 1) * limit;
+    console.log(this.prisma.orders);
     const count = await this.prisma.orders.count();
     const entities = await this.prisma.orders.findMany({
       take: limit,
       skip: skip,
-      orderBy: {
-        created_at: 'desc',
-      },
+      orderBy,
     });
+
     return {
       page: page,
       pages: Math.ceil(count / limit),

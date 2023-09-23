@@ -49,7 +49,7 @@ export class UserService {
     data.password = await this.authService.getHash(data.password);
     const newUser = this.prisma.user.create({ data });
 
-    const token = await this.authService.singIn(newUser);
+    const token = await this.signIn(newUser);
 
     return { token };
   }
@@ -78,7 +78,7 @@ export class UserService {
     });
   }
 
-  async singIn(user) {
+  async signIn(user) {
     return await this.authService.signIn({
       id: user.id.toString(),
     });

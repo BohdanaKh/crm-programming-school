@@ -5,7 +5,21 @@ export class PublicOrderInfoDto {
   @ApiProperty()
   @IsString()
   @IsOptional()
-  @IsEnum(['created_at'])
+  @IsEnum([
+    'id',
+    'name',
+    'surname',
+    'email',
+    'phone',
+    'age',
+    'course',
+    'course_format',
+    'course_type',
+    'status',
+    'sum',
+    'alreadyPaid',
+    'created_at',
+  ])
   sort: string;
 
   @ApiProperty()
