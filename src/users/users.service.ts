@@ -78,6 +78,12 @@ export class UserService {
     });
   }
 
+  async findByUserEmail(userEmail: string): Promise<User> {
+    return this.prisma.user.findFirst({
+      where: { email: userEmail },
+    });
+  }
+
   async signIn(user) {
     return await this.authService.signIn({
       id: user.id.toString(),

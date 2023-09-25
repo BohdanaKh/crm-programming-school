@@ -6,10 +6,12 @@ import {
   Param,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Orders, Prisma } from '@prisma/client';
 
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PublicOrderInfoDto } from '../common/query/order.query.dto';
 // import { Order } from '@prisma/client';
 import { OrdersService } from './orders.service';
@@ -17,6 +19,7 @@ import { OrdersService } from './orders.service';
 // @ApiBearerAuth()
 // @UseGuards(AuthGuard())
 @ApiTags('Orders')
+@UseGuards(JwtAuthGuard)
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}

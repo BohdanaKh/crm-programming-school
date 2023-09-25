@@ -1,7 +1,19 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Query } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpStatus,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiExtraModels, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Prisma, User } from '@prisma/client';
 
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import {
   ApiPaginatedResponse,
   PaginatedDto,
@@ -19,6 +31,8 @@ import { UserService } from './users.service';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @UseGuards(JwtAuthGuard)
+
   // @ApiResponse({ status: HttpStatus.CREATED, type: UserCreateDto })
   @Post('create')
   //   // if (!req.userAbility.can('create', 'User')) {
@@ -29,6 +43,7 @@ export class UserController {
   }
 
   @ApiPaginatedResponse('entities', PublicUserData)
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(@Query() query: PublicUserInfoDto) {
     return this.userService.getAllUsers(query);
@@ -38,6 +53,7 @@ export class UserController {
     return this.userService.findOne(+id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   update(
     @Param('id') id: string,
@@ -46,6 +62,7 @@ export class UserController {
     return this.userService.update(+id, updateUserDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string): Promise<User> {
     return this.userService.remove(+id);

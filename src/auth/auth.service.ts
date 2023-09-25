@@ -3,33 +3,36 @@ import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
-import { PrismaService } from '../common/orm/prisma.service';
+import { UserService } from '../users/users.service';
+import { UserLoginDto } from './dto/user.login.dto';
 import { JWTPayload } from './interface/auth.interface';
 
 @Injectable()
 export class AuthService {
   private salt = 10;
   constructor(
+    private userService: UserService,
     private readonly jwtService: JwtService,
-    private prisma: PrismaService,
   ) {}
-  // async login() {}
 
+  async login(user: UserLoginDto) {
+    const payload = { username: user.userName, sub: user.userId };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
+  }
   async signIn(data: JWTPayload): Promise<string> {
     return this.jwtService.sign(data);
   }
 
-  async validateUser(data: JWTPayload): Promise<User> {
-    const user = await this.prisma.user.findUnique({
-      where: {
-        id: Number(data.id),
-      },
-    });
-    if (!user) {
-      throw new UnauthorizedException();
+  async validateUser(data: UserLoginDto): Promise<User> {
+    const user = await this.userService.findByUserEmail(data.email);
+    if (user && user.password === data.password) {
+      const { password, ...result } = user;
+      return result;
     }
 
-    return user;
+    return null;
   }
 
   async verify(token: string): Promise<JWTPayload> {

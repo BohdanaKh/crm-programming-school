@@ -24,8 +24,9 @@ model Orders {
   created_at    DateTime?     @db.DateTime(6)
   utm           String?       @db.VarChar(100)
   msg           String?       @db.VarChar(100)
-  manager       String?
+  manager       User?         @relation(fields: [userId], references: [id])
   status        Status?
+  userId        Int?
 }
 
 model User {
@@ -37,6 +38,7 @@ model User {
   isActive  Boolean  @default(false)
   lastLogin DateTime @default(now())
   role      Role     @default(manager)
+  orders    Orders[]
 }
 
 enum Role {
