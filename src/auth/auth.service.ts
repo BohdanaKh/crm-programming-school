@@ -1,11 +1,13 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 import { UserService } from '../users/users.service';
 import { UserLoginDto } from './dto/user.login.dto';
+import { EActionTokenTypes } from './enums/action-token-type.enum';
 import { JWTPayload } from './interface/auth.interface';
+import * as process from "process";
 
 @Injectable()
 export class AuthService {
@@ -14,6 +16,29 @@ export class AuthService {
     private userService: UserService,
     private readonly jwtService: JwtService,
   ) {}
+
+  async generateActionTokenUrl(
+    payload: JWTPayload,
+    tokenType: EActionTokenTypes,
+  ): Promise<string> {
+    try {
+      let secret: string;
+
+      switch (tokenType) {
+        case EActionTokenTypes.Activate:
+          secret = process.env.JWT_ACTIVATE_SECRET;
+          break;
+        case EActionTokenTypes.Forgot:
+          secret = process.env.JWT_FORGOT_SECRET;
+          break;
+      }
+
+      const token = this.jwtService.sign(payload, secret, { expiresIn: '30m' });
+      return token;
+    } catch (e) {
+      throw new HttpException('Token not valid', 401);
+    }
+  }
 
   async login(user: UserLoginDto) {
     const payload = { username: user.userName, sub: user.userId };

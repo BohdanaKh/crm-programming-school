@@ -2,14 +2,13 @@ import {
   Body,
   Controller,
   Delete,
-  Get,
-  HttpStatus,
+  Get, HttpStatus,
   Param,
   Post,
   Put,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+  Query, Req, Res,
+  UseGuards
+} from "@nestjs/common";
 import { ApiExtraModels, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Prisma, User } from '@prisma/client';
 
@@ -38,9 +37,17 @@ export class UserController {
   //   // if (!req.userAbility.can('create', 'User')) {
   //   //   throw new HttpException('Forbidden resource', 403);
   //   // }
-  create(@Body() createUserDto: Prisma.UserCreateInput): Promise<User> {
-    return this.userService.create(createUserDto);
+  async createUser(
+    @Req() req: any,
+    @Body() body: UserCreateDto,
+    @Res() res: any,
+  ) {
+    return res
+      .status(HttpStatus.CREATED)
+      .json(await this.userService.createUserByAdmin(body));
   }
+
+  @Post('activate')
 
   @ApiPaginatedResponse('entities', PublicUserData)
   @UseGuards(JwtAuthGuard)
@@ -50,7 +57,7 @@ export class UserController {
   }
   @Get(':id')
   findOne(@Param('id') id: string): Promise<User> {
-    return this.userService.findOne(+id);
+    return this.userService.getUserById(id);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -59,12 +66,12 @@ export class UserController {
     @Param('id') id: string,
     @Body() updateUserDto: Prisma.UserUpdateInput,
   ): Promise<User> {
-    return this.userService.update(+id, updateUserDto);
+    return this.userService.update(id, updateUserDto);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string): Promise<User> {
-    return this.userService.remove(+id);
+    return this.userService.remove(id);
   }
 }

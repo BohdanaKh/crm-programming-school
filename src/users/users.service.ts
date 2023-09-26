@@ -4,15 +4,21 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma, User } from '@prisma/client';
+import { Prisma, Role, User } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 import { AuthService } from '../auth/auth.service';
+import { RegisterDto } from '../auth/dto/user.register.dto';
+import { JWTPayload } from '../auth/interface/auth.interface';
 import { PrismaService } from '../common/orm/prisma.service';
 import { PaginatedDto } from '../common/pagination/response';
 import { PublicUserInfoDto } from '../common/query/user.query.dto';
+import { UserCreateDto } from './dto/user.create.dto';
+import * as process from "process";
 
 @Injectable()
 export class UserService {
+  private salt = +process.env.SECRET_SALT;
   constructor(
     private prisma: PrismaService,
     private readonly authService: AuthService,
@@ -36,9 +42,9 @@ export class UserService {
       entities,
     };
   }
-  async create(data: Prisma.UserCreateInput): Promise<any> {
+  async createUserByAdmin(userData: UserCreateDto): Promise<User> {
     const findUser = await this.prisma.user.findUnique({
-      where: { email: data.email },
+      where: { email: userData.email },
     });
     if (findUser) {
       throw new HttpException(
@@ -46,42 +52,66 @@ export class UserService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    data.password = await this.authService.getHash(data.password);
-    const newUser = this.prisma.user.create({ data });
-
-    const token = await this.signIn(newUser);
-
-    return { token };
+    return this.prisma.user.create({
+      data: {
+        email: userData.email,
+        name: userData.name,
+        surname: userData.surname,
+        isActive: userData.isActive || false,
+        lastLogin: userData.lastLogin || null,
+        role: userData.role || Role.manager,
+      },
+    });
+    // data.password = await this.authService.getHash(data.password);
+    // const newUser = this.prisma.user.create({ data });
+    //
+    // const token = await this.signIn(newUser);
+    //
+    // return { token };
   }
 
-  async findOne(id: number): Promise<User | null> {
+
+
+  async activateUser(userData: RegisterDto): Promise<User> {
+    const passwordHash = await this.hashPassword(userData.password);
+    return this.prisma.user.update({
+      where: { id: payload.id },
+      data: { password: passwordHash, isActive: true },
+    });
+  }
+
+  async getUserById(userId: string): Promise<User | null> {
     const user = await this.prisma.user.findUnique({
-      where: { id },
+      where: { id: +userId },
     });
     if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+      throw new NotFoundException(`User with ID ${userId} not found`);
     }
     return user;
   }
 
-  async update(id: number, data: Prisma.UserUpdateInput): Promise<User> {
+  async update(userId: string, data: Prisma.UserUpdateInput): Promise<User> {
     return this.prisma.user.update({
-      where: { id },
+      where: { id: +userId },
       data,
     });
   }
 
-  async remove(id: number): Promise<User> {
+  async remove(userId: string): Promise<User> {
     // const user = await this.findOne(id);
     return this.prisma.user.delete({
-      where: { id },
+      where: { id: +userId },
     });
   }
 
-  async findByUserEmail(userEmail: string): Promise<User> {
+  async findUserByEmail(userEmail: string): Promise<User> {
     return this.prisma.user.findFirst({
       where: { email: userEmail },
     });
+  }
+
+  async hashPassword(password: string) {
+    return bcrypt.hash(password, this.salt);
   }
 
   async signIn(user) {
