@@ -2,19 +2,22 @@ import {
   Body,
   Controller,
   HttpStatus,
-  Post, Query,
+  Post,
+  Query,
   Res,
-  UseGuards
-} from "@nestjs/common";
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
+import { User } from '@prisma/client';
 
+import { ApiError } from '../common/errors/api.error';
 import { UserService } from '../users/users.service';
 import { AuthService } from './auth.service';
 import { UserLoginDto } from './dto/user.login.dto';
-import { JwtAuthGuard } from './jwt-auth.guard';
-import { LocalAuthGuard } from './local-auth.guard';
-import { RegisterDto } from "./dto/user.register.dto";
+import { ActivateUserDto } from './dto/user.register.dto';
+import { EActionTokenTypes } from './enums/action-token-type.enum';
+import { JWTPayload } from './interface/auth.interface';
 
 function LogoutGuard() {}
 
@@ -28,7 +31,9 @@ export class AuthController {
   @UseGuards(AuthGuard())
   @Post('login')
   async login(@Res() res: any, @Body() loginUser: UserLoginDto) {
-    const findUser = await this.userService.findUserByEmail(loginUser.email);
+    const findUser = await this.userService.findUserByEmail(
+      loginUser.email.trim(),
+    );
     if (!findUser) {
       return res
         .status(HttpStatus.UNAUTHORIZED)
@@ -37,7 +42,12 @@ export class AuthController {
     if (
       await this.authService.compareHash(loginUser.password, findUser.password)
     ) {
-      const token = await this.authService.signIn(findUser.id.toString());
+      const payload: JWTPayload = {
+        id: findUser.id.toString(),
+        userName: findUser.name,
+        role: findUser.role,
+      };
+      const token = await this.authService.signIn(payload);
       return res.status(HttpStatus.OK).json({ token });
     }
     return res
@@ -52,42 +62,29 @@ export class AuthController {
     return res.status(HttpStatus.OK).json('logout');
   }
 
-  @Post('register')
-  async registerUser(@Res() res: any, @Query() token: string, @Body() body: RegisterDto) {
+  @Post('activate')
+  async activateUserByUser(
+    @Res() res: any,
+    @Query() token: string,
+    @Body() body: ActivateUserDto,
+  ): Promise<User> {
     let findUser;
+    const jwtPayload = await this.authService.verify(token);
+    console.log(jwtPayload);
+    const { id } = jwtPayload;
     try {
-      findUser = await this.userService.findUserByEmail(body.email.trim());
+      findUser = await this.userService.getUserById(id);
     } catch (err) {
-      console.log(err);
+      throw new ApiError(err.body, err.status);
     }
-    if (findUser) {
-      return res
-        .status(HttpStatus.FORBIDDEN)
-        .json({ message: 'User with this email already exists' });
-    }
-    const user = await this.userService.createUser({
-      name: body.name ? body.name : 'Manager', // body.name || body.email,
-      surname: body.surname,
-      email: body.email,
-      password: body.password,
-    });
-
-    if (user) {
-      const subject = 'Welcome on board!';
-      this.mailService.send(user.email, subject, MailTemplate.WELCOME, {
-        userName: user.name,
-      });
-      const token = await this.authService.singIn(user.id.toString());
-      return res.status(HttpStatus.OK).json({ token });
-    }
-
-    return res
-      .status(HttpStatus.BAD_REQUEST)
-      .json({ message: 'Error.Register_user_failed' });
+    return await this.userService.activateUserByUser(id, body);
   }
 
   @Post('activate')
-  async activateUser(){
-    return this.authService.generateActionTokenUrl()
+  async activateUserByAdmin(@Body() body: JWTPayload) {
+    return this.authService.generateActionTokenUrl(
+      body,
+      EActionTokenTypes.Activate,
+    );
   }
 }

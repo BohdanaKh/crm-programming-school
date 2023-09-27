@@ -1,13 +1,18 @@
-import { HttpException, Injectable, UnauthorizedException } from "@nestjs/common";
+import {
+  HttpException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import * as process from 'process';
 
+import { ApiError } from '../common/errors/api.error';
 import { UserService } from '../users/users.service';
 import { UserLoginDto } from './dto/user.login.dto';
 import { EActionTokenTypes } from './enums/action-token-type.enum';
 import { JWTPayload } from './interface/auth.interface';
-import * as process from "process";
 
 @Injectable()
 export class AuthService {
@@ -33,25 +38,35 @@ export class AuthService {
           break;
       }
 
-      const token = this.jwtService.sign(payload, secret, { expiresIn: '30m' });
-      return token;
+      const actionToken = this.jwtService.sign(payload, secret, {
+        expiresIn: '30m',
+      });
+      return this.emailService.sendMail(data.email, EEmailActions.ACTIVATE, {
+        name: data.name,
+        actionToken,
+      });
     } catch (e) {
-      throw new HttpException('Token not valid', 401);
+      throw new ApiError(e.message, e.status);
     }
   }
 
-  async login(user: UserLoginDto) {
-    const payload = { username: user.userName, sub: user.userId };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
-  }
+  // async login(user: UserLoginDto) {
+  //   const findUser = await this.userService.findUserByEmail(user.email);
+  //   const payload = {
+  //     id: findUser.id,
+  //     userName: findUser.name,
+  //     role: findUser.role,
+  //   };
+  //   return {
+  //     access_token: this.jwtService.sign(payload),
+  //   };
+  // }
   async signIn(data: JWTPayload): Promise<string> {
     return this.jwtService.sign(data);
   }
 
   async validateUser(data: UserLoginDto): Promise<User> {
-    const user = await this.userService.findByUserEmail(data.email);
+    const user = await this.userService.findUserByEmail(data.email.trim());
     if (user && user.password === data.password) {
       const { password, ...result } = user;
       return result;

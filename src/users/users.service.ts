@@ -6,15 +6,14 @@ import {
 } from '@nestjs/common';
 import { Prisma, Role, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import * as process from 'process';
 
 import { AuthService } from '../auth/auth.service';
-import { RegisterDto } from '../auth/dto/user.register.dto';
-import { JWTPayload } from '../auth/interface/auth.interface';
+import { ActivateUserDto } from '../auth/dto/user.register.dto';
 import { PrismaService } from '../common/orm/prisma.service';
 import { PaginatedDto } from '../common/pagination/response';
 import { PublicUserInfoDto } from '../common/query/user.query.dto';
 import { UserCreateDto } from './dto/user.create.dto';
-import * as process from "process";
 
 @Injectable()
 export class UserService {
@@ -44,7 +43,7 @@ export class UserService {
   }
   async createUserByAdmin(userData: UserCreateDto): Promise<User> {
     const findUser = await this.prisma.user.findUnique({
-      where: { email: userData.email },
+      where: { email: userData.email.trim() },
     });
     if (findUser) {
       throw new HttpException(
@@ -52,9 +51,14 @@ export class UserService {
         HttpStatus.BAD_REQUEST,
       );
     }
+    let hashedPassword;
+    userData.password
+      ? (hashedPassword = await this.hashPassword(userData.password))
+      : (hashedPassword = null);
     return this.prisma.user.create({
       data: {
         email: userData.email,
+        password: hashedPassword,
         name: userData.name,
         surname: userData.surname,
         isActive: userData.isActive || false,
@@ -62,20 +66,15 @@ export class UserService {
         role: userData.role || Role.manager,
       },
     });
-    // data.password = await this.authService.getHash(data.password);
-    // const newUser = this.prisma.user.create({ data });
-    //
-    // const token = await this.signIn(newUser);
-    //
-    // return { token };
   }
 
-
-
-  async activateUser(userData: RegisterDto): Promise<User> {
+  async activateUserByUser(
+    id: string,
+    userData: ActivateUserDto,
+  ): Promise<User> {
     const passwordHash = await this.hashPassword(userData.password);
     return this.prisma.user.update({
-      where: { id: payload.id },
+      where: { id: +id },
       data: { password: passwordHash, isActive: true },
     });
   }
