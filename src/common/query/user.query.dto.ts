@@ -29,8 +29,4 @@ export class PublicUserInfoDto {
   @IsOptional()
   limit: string;
 
-  // @ApiProperty()
-  // @IsString()
-  // @IsOptional()
-  // status: string;
 }

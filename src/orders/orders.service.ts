@@ -96,6 +96,18 @@ export class OrdersService {
       take: limit,
       skip: skip,
       orderBy,
+      where: {
+        name: query.name,
+        surname: query.surname,
+        email: query.email,
+        phone: query.phone,
+        age: query.age,
+        course: query.course,
+        course_format: query.courseFormat,
+        course_type: query.courseType,
+        status: query.status,
+        group: query.group,
+      },
     });
 
     return {

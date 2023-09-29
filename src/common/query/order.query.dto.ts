@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Course, CourseFormat, CourseType, Status } from '@prisma/client';
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 
 export class PublicOrderInfoDto {
@@ -46,20 +47,66 @@ export class PublicOrderInfoDto {
   // @ApiProperty()
   // @IsString()
   // @IsOptional()
-  // status: string;
-  //
-  // @ApiProperty()
-  // @IsString()
-  // @IsOptional()
-  // brand: string;
-  //
-  // @ApiProperty()
-  // @IsString()
-  // @IsOptional()
-  // region: string;
-  //
-  // @ApiProperty()
-  // @IsString()
-  // @IsOptional()
-  // categories: string;
+  // @IsEnum([
+  //   'name',
+  //   'surname',
+  //   'email',
+  //   'phone',
+  //   'age',
+  //   'course',
+  //   'course_format',
+  //   'course_type',
+  //   'status',
+  // ])
+  // filter: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  name: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  surname: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  email: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  phone: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  age: string;
+
+  @ApiProperty()
+  @IsEnum(Course)
+  @IsOptional()
+  course: string;
+
+  @ApiProperty()
+  @IsEnum(CourseFormat)
+  @IsOptional()
+  courseFormat: string;
+
+  @ApiProperty()
+  @IsEnum(CourseType)
+  @IsOptional()
+  courseType: string;
+
+  @ApiProperty()
+  @IsEnum(Status)
+  @IsOptional()
+  status: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  group: string;
 }
