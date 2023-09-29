@@ -5,7 +5,6 @@ generator client {
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
-  // shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 model Orders {
@@ -24,9 +23,9 @@ model Orders {
   created_at    DateTime?     @db.DateTime(6)
   utm           String?       @db.VarChar(100)
   msg           String?       @db.VarChar(100)
-  manager       User?         @relation(fields: [userId], references: [id])
+  manager       User?         @relation(fields: [managerId], references: [id])
   status        Status?
-  userId        Int?
+  managerId     Int?
 }
 
 model User {
@@ -37,6 +36,7 @@ model User {
   surname   String
   isActive  Boolean  @default(false)
   lastLogin DateTime @default(now())
+  createdAt DateTime @default(now())
   role      Role     @default(manager)
   orders    Orders[]
 }

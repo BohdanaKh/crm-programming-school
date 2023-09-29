@@ -23,6 +23,53 @@ export class UserService {
     private readonly authService: AuthService,
   ) {}
   async getAllUsers(query: PublicUserInfoDto): Promise<PaginatedDto<User>> {
+    const { sort, order } = query;
+    const sortingOptions = {
+      id: {
+        orderBy: {
+          id: order,
+        },
+      },
+      email: {
+        orderBy: {
+          email: order,
+        },
+      },
+      name: {
+        orderBy: {
+          name: order,
+        },
+      },
+      surname: {
+        orderBy: {
+          surname: order,
+        },
+      },
+      isActive: {
+        orderBy: {
+          isActive: order,
+        },
+      },
+      lastLogin: {
+        orderBy: {
+          lastLogin: order,
+        },
+      },
+      created_at: {
+        orderBy: {
+          created_at: order,
+        },
+      },
+      created_at_desc: {
+        orderBy: {
+          created_at: 'DESC',
+        },
+      },
+    };
+    const orderBy =
+      sortingOptions[sort]['orderBy'] ||
+      sortingOptions.created_at_desc['orderBy'];
+
     const limit = 10;
     const page = +query.page || 1;
     const skip = (page - 1) * limit;
@@ -30,9 +77,7 @@ export class UserService {
     const entities = await this.prisma.user.findMany({
       take: limit,
       skip: skip,
-      orderBy: {
-        id: 'asc',
-      },
+      orderBy,
     });
     return {
       page: page,
@@ -57,7 +102,7 @@ export class UserService {
       : (hashedPassword = null);
     return this.prisma.user.create({
       data: {
-        email: userData.email,
+        email: userData.email.trim(),
         password: hashedPassword,
         name: userData.name,
         surname: userData.surname,

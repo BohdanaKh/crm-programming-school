@@ -12,6 +12,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { User } from '@prisma/client';
 
 import { ApiError } from '../common/errors/api.error';
+import { OrdersService } from '../orders/orders.service';
 import { UserService } from '../users/users.service';
 import { AuthService } from './auth.service';
 import { UserLoginDto } from './dto/user.login.dto';
@@ -27,13 +28,17 @@ export class AuthController {
   constructor(
     private authService: AuthService,
     private userService: UserService,
+    private ordersService: OrdersService,
   ) {}
   @UseGuards(AuthGuard())
   @Post('login')
   async login(@Res() res: any, @Body() loginUser: UserLoginDto) {
-    const findUser = await this.userService.findUserByEmail(
-      loginUser.email.trim(),
-    );
+    if (!loginUser.email && !loginUser.password) {
+      return res
+        .status(HttpStatus.FORBIDDEN)
+        .json({ message: 'Error.Check_request_params' });
+    }
+    const findUser = await this.userService.findUserByEmail(loginUser.email);
     if (!findUser) {
       return res
         .status(HttpStatus.UNAUTHORIZED)
@@ -42,13 +47,20 @@ export class AuthController {
     if (
       await this.authService.compareHash(loginUser.password, findUser.password)
     ) {
-      const payload: JWTPayload = {
-        id: findUser.id.toString(),
-        userName: findUser.name,
-        role: findUser.role,
-      };
-      const token = await this.authService.signIn(payload);
-      return res.status(HttpStatus.OK).json({ token });
+      // const payload: JWTPayload = {
+      //   id: findUser.id.toString(),
+      //   userName: findUser.name,
+      //   role: findUser.role,
+      // };
+      // const token = await this.authService.signIn(payload);
+      // return res.status(HttpStatus.OK).json({ token });
+      return this.ordersService.findAllWithPagination({
+        page: '1',
+        sort: 'created_at',
+        order: 'desc',
+        limit: '',
+        search: '',
+      });
     }
     return res
       .status(HttpStatus.UNAUTHORIZED)
@@ -68,12 +80,11 @@ export class AuthController {
     @Query() token: string,
     @Body() body: ActivateUserDto,
   ): Promise<User> {
-    let findUser;
     const jwtPayload = await this.authService.verify(token);
     console.log(jwtPayload);
     const { id } = jwtPayload;
     try {
-      findUser = await this.userService.getUserById(id);
+      await this.userService.getUserById(id);
     } catch (err) {
       throw new ApiError(err.body, err.status);
     }

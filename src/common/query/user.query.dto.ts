@@ -5,14 +5,14 @@ export class PublicUserInfoDto {
   @ApiProperty()
   @IsString()
   @IsOptional()
-  @IsEnum(['userName', 'age', 'city'])
+  @IsEnum(['email', 'name', 'surname', 'isActive', 'lastLogin', 'createdAt'])
   sort: string;
 
   @ApiProperty()
   @IsString()
   @IsOptional()
   @IsEnum(['ASC', 'DESC'])
-  order: 'ASC' | 'DESC';
+  order: string;
 
   @ApiProperty()
   @IsString()

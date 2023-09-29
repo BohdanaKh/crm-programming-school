@@ -38,9 +38,7 @@ export class AuthService {
           break;
       }
 
-      const actionToken = this.jwtService.sign(payload, secret, {
-        expiresIn: '30m',
-      });
+      const actionToken = this.signIn({ payload, secret });
       return this.emailService.sendMail(data.email, EEmailActions.ACTIVATE, {
         name: data.name,
         actionToken,
@@ -61,7 +59,7 @@ export class AuthService {
   //     access_token: this.jwtService.sign(payload),
   //   };
   // }
-  async signIn(data: JWTPayload): Promise<string> {
+  async signIn(data): Promise<string> {
     return this.jwtService.sign(data);
   }
 

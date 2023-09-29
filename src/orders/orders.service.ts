@@ -78,9 +78,15 @@ export class OrdersService {
           created_at: order,
         },
       },
+      created_at_desc: {
+        orderBy: {
+          created_at: 'DESC',
+        },
+      },
     };
     const orderBy =
-      sortingOptions[sort]['orderBy'] || sortingOptions.created_at['orderBy'];
+      sortingOptions[sort]['orderBy'] ||
+      sortingOptions.created_at_desc['orderBy'];
 
     const limit = 25;
     const page = +query.page || 1;

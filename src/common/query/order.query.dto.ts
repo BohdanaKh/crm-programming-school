@@ -25,8 +25,8 @@ export class PublicOrderInfoDto {
   @ApiProperty()
   @IsString()
   @IsOptional()
-  // @IsEnum(['ASC', 'DESC'])
-  order: string;    //'ASC' | 'DESC';
+  @IsEnum(['ASC', 'DESC'])
+  order: string; //'ASC' | 'DESC';
 
   @ApiProperty()
   @IsString()
