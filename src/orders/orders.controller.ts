@@ -6,7 +6,9 @@ import {
   Param,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
 import { Orders, Prisma } from '@prisma/client';
 
@@ -17,6 +19,7 @@ import { OrdersService } from './orders.service';
 // @ApiBearerAuth()
 // @UseGuards(AuthGuard())
 @ApiTags('Orders')
+@UseGuards(AuthGuard())
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}

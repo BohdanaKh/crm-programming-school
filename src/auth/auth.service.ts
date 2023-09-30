@@ -1,16 +1,13 @@
 import {
-  HttpException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import * as process from 'process';
 
 import { ApiError } from '../common/errors/api.error';
 import { UserService } from '../users/users.service';
-import { UserLoginDto } from './dto/user.login.dto';
 import { EActionTokenTypes } from './enums/action-token-type.enum';
 import { JWTPayload } from './interface/auth.interface';
 
@@ -63,15 +60,15 @@ export class AuthService {
     return this.jwtService.sign(data);
   }
 
-  async validateUser(data: UserLoginDto): Promise<User> {
-    const user = await this.userService.findUserByEmail(data.email.trim());
-    if (user && user.password === data.password) {
-      const { password, ...result } = user;
-      return result;
-    }
-
-    return null;
-  }
+  // async validateUser(data: UserLoginDto): Promise<User> {
+  //   const user = await this.userService.findUserByEmail(data.email.trim());
+  //   if (user && user.password === data.password) {
+  //     const { password, ...result } = user;
+  //     return result;
+  //   }
+  //
+  //   return null;
+  // }
 
   async verify(token: string): Promise<JWTPayload> {
     try {
@@ -82,20 +79,20 @@ export class AuthService {
     }
   }
 
-  decode(token: string): JWTPayload | any {
-    try {
-      return this.jwtService.decode(token);
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.log(
-        new Date().toISOString(),
-        ' [JWT VERIFY ERROR] ',
-        JSON.stringify(e),
-        ' [TOKEN] ',
-        token,
-      );
-    }
-  }
+  // async decode(token: string): Promise<JWTPayload | any> {
+  //   try {
+  //     return this.jwtService.decode(token);
+  //   } catch (e) {
+  //     // eslint-disable-next-line no-console
+  //     console.log(
+  //       new Date().toISOString(),
+  //       ' [JWT VERIFY ERROR] ',
+  //       JSON.stringify(e),
+  //       ' [TOKEN] ',
+  //       token,
+  //     );
+  //   }
+  // }
 
   async getHash(password: string) {
     return await bcrypt.hash(password, this.salt);

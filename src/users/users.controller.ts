@@ -10,7 +10,9 @@ import {
   Query,
   Req,
   Res,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
 import { Prisma, User } from '@prisma/client';
 
@@ -27,6 +29,7 @@ import { UserService } from './users.service';
 // @UseGuards(AuthGuard())
 @ApiTags('User')
 @ApiExtraModels(PublicUserData, PaginatedDto)
+@UseGuards(AuthGuard())
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}

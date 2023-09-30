@@ -30,7 +30,6 @@ export class AuthController {
     private userService: UserService,
     private ordersService: OrdersService,
   ) {}
-  @UseGuards(AuthGuard())
   @Post('login')
   async login(@Res() res: any, @Body() loginUser: UserLoginDto) {
     if (!loginUser.email && !loginUser.password) {
@@ -91,6 +90,7 @@ export class AuthController {
     return await this.userService.activateUserByUser(id, body);
   }
 
+  @UseGuards(AuthGuard())
   @Post('activate')
   async activateUserByAdmin(@Body() body: JWTPayload) {
     return this.authService.generateActionTokenUrl(

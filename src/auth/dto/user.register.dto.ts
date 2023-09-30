@@ -10,4 +10,10 @@ export class ActivateUserDto {
       'The password must contain at least 8 characters, including at least one letter, one digit, and one special character (@, $, !, %, *, #, ?, or &).',
   })
   password: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @Matches('password')
+  confirm_password: string;
 }

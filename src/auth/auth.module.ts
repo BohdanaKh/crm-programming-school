@@ -7,7 +7,6 @@ import { UserService } from '../users/users.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { BearerStrategy } from './bearer.strategy';
-import { JwtStrategy } from "./jwt.strategy";
 
 @Module({
   imports: [
@@ -26,7 +25,7 @@ import { JwtStrategy } from "./jwt.strategy";
       }),
     }),
   ],
-  providers: [AuthService, BearerStrategy, UserService, JwtStrategy],
+  providers: [AuthService, BearerStrategy, UserService],
   controllers: [AuthController],
   exports: [AuthService],
 })
