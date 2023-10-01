@@ -83,27 +83,30 @@ export class PublicOrderInfoDto {
   @ApiProperty()
   @IsString()
   @IsOptional()
-  age: string;
+  age: number;
 
   @ApiProperty()
+  @IsString()
+  @IsOptional()
   @IsEnum(Course)
-  @IsOptional()
-  course: string;
+  course: Course;
 
   @ApiProperty()
-  @IsEnum(CourseFormat)
+  @IsString()
   @IsOptional()
-  courseFormat: string;
+  @IsEnum(['static', 'online'])
+  courseFormat: CourseFormat;
 
   @ApiProperty()
-  @IsEnum(CourseType)
+  @IsString()
   @IsOptional()
-  courseType: string;
+  courseType: CourseType;
 
   @ApiProperty()
+  @IsString()
+  @IsOptional()
   @IsEnum(Status)
-  @IsOptional()
-  status: string;
+  status: Status;
 
   @ApiProperty()
   @IsString()

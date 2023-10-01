@@ -29,16 +29,17 @@ model Orders {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  name      String
-  surname   String
-  isActive  Boolean  @default(false)
-  lastLogin DateTime @default(now())
-  createdAt DateTime @default(now())
-  role      Role     @default(manager)
-  orders    Orders[]
+  id         Int      @id @default(autoincrement())
+  email      String   @unique
+  password   String
+  name       String
+  surname    String
+  is_active  Boolean  @default(false)
+  last_login DateTime @default(now())
+  created_at DateTime @default(now())
+  is_banned  Boolean  @default(false)
+  role       Role     @default(manager)
+  orders     Orders[]
 }
 
 enum Role {

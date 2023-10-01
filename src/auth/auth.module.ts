@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 
+import { MailModule } from '../common/mail.module';
 import { UserModule } from '../users/users.module';
 import { UserService } from '../users/users.service';
 import { AuthController } from './auth.controller';
@@ -11,6 +12,7 @@ import { BearerStrategy } from './bearer.strategy';
 @Module({
   imports: [
     UserModule,
+    MailModule,
     PassportModule,
     JwtModule.registerAsync({
       useFactory: async () => ({

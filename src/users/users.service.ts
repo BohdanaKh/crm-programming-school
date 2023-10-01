@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma, Role, User } from '@prisma/client';
+import { Role, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import * as process from 'process';
 
@@ -106,8 +106,9 @@ export class UserService {
         password: hashedPassword,
         name: userData.name,
         surname: userData.surname,
-        isActive: userData.isActive || false,
-        lastLogin: userData.lastLogin || null,
+        is_active: userData.is_active || false,
+        last_login: userData.last_login || null,
+        is_banned: userData.is_banned || false,
         role: userData.role || Role.manager,
       },
     });
@@ -120,7 +121,21 @@ export class UserService {
     const passwordHash = await this.hashPassword(userData.password);
     return this.prisma.user.update({
       where: { id: +id },
-      data: { password: passwordHash, isActive: true },
+      data: { password: passwordHash, is_active: true },
+    });
+  }
+
+  async banUser(userId: number): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { is_banned: true },
+    });
+  }
+
+  async unbanUser(userId: number): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { is_banned: false },
     });
   }
 
@@ -134,12 +149,12 @@ export class UserService {
     return user;
   }
 
-  async update(userId: string, data: Prisma.UserUpdateInput): Promise<User> {
-    return this.prisma.user.update({
-      where: { id: +userId },
-      data,
-    });
-  }
+  // async update(userId: string, data: Prisma.UserUpdateInput): Promise<User> {
+  //   return this.prisma.user.update({
+  //     where: { id: +userId },
+  //     data,
+  //   });
+  // }
 
   async remove(userId: string): Promise<User> {
     // const user = await this.findOne(id);

@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  HttpException,
   HttpStatus,
+  Param,
   Post,
   Query,
   Res,
@@ -18,7 +20,6 @@ import { AuthService } from './auth.service';
 import { UserLoginDto } from './dto/user.login.dto';
 import { ActivateUserDto } from './dto/user.register.dto';
 import { EActionTokenTypes } from './enums/action-token-type.enum';
-import { JWTPayload } from './interface/auth.interface';
 
 function LogoutGuard() {}
 
@@ -43,6 +44,10 @@ export class AuthController {
         .status(HttpStatus.UNAUTHORIZED)
         .json({ message: 'Email or password is incorrect' });
     }
+    if (findUser.is_banned) {
+      throw new HttpException('Access denied', 403);
+    }
+
     if (
       await this.authService.compareHash(loginUser.password, findUser.password)
     ) {
@@ -59,6 +64,16 @@ export class AuthController {
         order: 'desc',
         limit: '',
         search: '',
+        name: '',
+        surname: '',
+        email: '',
+        phone: '',
+        age: '',
+        course: '',
+        courseFormat: '',
+        courseType: '',
+        status: '',
+        group: '',
       });
     }
     return res
@@ -91,10 +106,10 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard())
-  @Post('activate')
-  async activateUserByAdmin(@Body() body: JWTPayload) {
+  @Post('activate/:id')
+  async activateUserByAdmin(@Param('userId') userId: string) {
     return this.authService.generateActionTokenUrl(
-      body,
+      userId,
       EActionTokenTypes.Activate,
     );
   }

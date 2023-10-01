@@ -34,12 +34,17 @@ export class UserCreateDto {
   @ApiProperty()
   @IsBoolean()
   @IsOptional()
-  isActive: boolean;
+  is_active: boolean;
 
   @ApiProperty()
   @IsDate()
   @IsOptional()
-  lastLogin: Date;
+  last_login: Date;
+
+  @ApiProperty()
+  @IsBoolean()
+  @IsOptional()
+  is_banned: boolean;
 
   @ApiProperty()
   @IsEnum(Role)

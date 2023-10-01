@@ -1,12 +1,11 @@
-import {
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import * as process from 'process';
 
 import { ApiError } from '../common/errors/api.error';
+import { EEmailActions } from '../common/mail/email.enum';
+import { MailService } from '../common/mail/mail.service';
 import { UserService } from '../users/users.service';
 import { EActionTokenTypes } from './enums/action-token-type.enum';
 import { JWTPayload } from './interface/auth.interface';
@@ -17,13 +16,20 @@ export class AuthService {
   constructor(
     private userService: UserService,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
   ) {}
 
   async generateActionTokenUrl(
-    payload: JWTPayload,
+    userId: string,
     tokenType: EActionTokenTypes,
   ): Promise<string> {
     try {
+      const user = await this.userService.getUserById(userId);
+      const payload: JWTPayload = {
+        id: user.id.toString(),
+        userName: user.name,
+        role: user.role,
+      };
       let secret: string;
 
       switch (tokenType) {
@@ -36,10 +42,16 @@ export class AuthService {
       }
 
       const actionToken = this.signIn({ payload, secret });
-      return this.emailService.sendMail(data.email, EEmailActions.ACTIVATE, {
-        name: data.name,
-        actionToken,
-      });
+      const subject = 'Activate account';
+      return this.mailService.send(
+        user.email,
+        subject,
+        EEmailActions.ACTIVATE,
+        {
+          name: user.name,
+          actionToken,
+        },
+      );
     } catch (e) {
       throw new ApiError(e.message, e.status);
     }
