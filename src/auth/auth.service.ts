@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import * as clipboardy from 'clipboardy';
 import * as process from 'process';
 
 import { ApiError } from '../common/errors/api.error';
@@ -42,6 +43,8 @@ export class AuthService {
       }
 
       const actionToken = this.signIn({ payload, secret });
+      clipboardy.writeSync(await actionToken);
+
       const subject = 'Activate account';
       return this.mailService.send(
         user.email,
