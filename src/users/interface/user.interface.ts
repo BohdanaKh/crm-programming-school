@@ -18,4 +18,10 @@ export class PublicUserData {
 
   @ApiProperty()
   last_login: Date;
+
+  @ApiProperty()
+  created_at: Date;
+
+  @ApiProperty()
+  role: string;
 }

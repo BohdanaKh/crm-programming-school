@@ -13,6 +13,8 @@ import { PrismaService } from '../common/orm/prisma.service';
 import { PaginatedDto } from '../common/pagination/response';
 import { PublicUserInfoDto } from '../common/query/user.query.dto';
 import { UserCreateDto } from './dto/user.create.dto';
+import { UserUpdateDto } from "./dto/user.update.dto";
+import { PublicUserData } from "./interface/user.interface";
 
 @Injectable()
 export class UserService {
@@ -145,16 +147,15 @@ export class UserService {
     return user;
   }
 
-  // async update(userId: string, data: Prisma.UserUpdateInput): Promise<User> {
-  //   return this.prisma.user.update({
-  //     where: { id: +userId },
-  //     data,
-  //   });
-  // }
+  async update(userId: string, data: UserUpdateDto): Promise<User> {
+    return this.prisma.user.update({
+      where: { id: +userId },
+      data,
+    });
+  }
 
-  async remove(userId: string): Promise<User> {
-    // const user = await this.findOne(id);
-    return this.prisma.user.delete({
+  async remove(userId: string): Promise<void> {
+    await this.prisma.user.delete({
       where: { id: +userId },
     });
   }

@@ -6,6 +6,7 @@ import { Strategy } from 'passport-http-bearer';
 
 import { UserService } from '../users/users.service';
 import { AuthService } from './auth.service';
+import { PublicUserData } from "../users/interface/user.interface";
 
 @Injectable()
 export class BearerStrategy extends PassportStrategy(Strategy, 'bearer') {

@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiExtraModels, ApiTags } from '@nestjs/swagger';
-import { Prisma, User } from '@prisma/client';
+import { User } from '@prisma/client';
 
 import {
   ApiPaginatedResponse,
@@ -22,6 +22,7 @@ import {
 } from '../common/pagination/response';
 import { PublicUserInfoDto } from '../common/query/user.query.dto';
 import { UserCreateDto } from './dto/user.create.dto';
+import { UserUpdateDto } from './dto/user.update.dto';
 import { PublicUserData } from './interface/user.interface';
 import { UserService } from './users.service';
 
@@ -46,18 +47,21 @@ export class UserController {
     @Res() res: any,
   ) {
     const newUser = await this.userService.createUserByAdmin(body);
-    return res
-      .status(HttpStatus.CREATED)
-      .json(
-        newUser.id,
-        newUser.name,
-        newUser.surname,
-        newUser.email,
-        newUser.is_active,
-        newUser.is_banned,
-        newUser.last_login,
-        newUser.created_at,
-      );
+    return (
+      res
+        .status(HttpStatus.CREATED)
+        // .json(await this.userService.createUserByAdmin(body));
+        .json({
+          id: newUser.id,
+          name: newUser.name,
+          surname: newUser.surname,
+          email: newUser.email,
+          is_active: newUser.is_active,
+          is_banned: newUser.is_banned,
+          last_login: newUser.last_login,
+          created_at: newUser.created_at,
+        })
+    );
   }
 
   @ApiPaginatedResponse('entities', PublicUserData)
@@ -72,27 +76,49 @@ export class UserController {
     // return { message: 'User banned successfully' };
   }
 
-  @Delete('unban/:userId')
+  @Post('unban/:userId')
   async unbanUser(@Param('userId') userId: string): Promise<void> {
     await this.userService.unbanUser(+userId);
     // return { message: 'User unbanned successfully' };
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<User> {
-    return this.userService.getUserById(id);
+  async findOne(@Param('id') id: string, @Res() res: any): Promise<User> {
+    const foundUser = await this.userService.getUserById(id);
+    return res.status(HttpStatus.OK).json({
+      id: foundUser.id,
+      name: foundUser.name,
+      surname: foundUser.surname,
+      email: foundUser.email,
+      is_active: foundUser.is_active,
+      is_banned: foundUser.is_banned,
+      last_login: foundUser.last_login,
+      created_at: foundUser.created_at,
+    });
   }
 
-  // @Put(':id')
-  // update(
-  //   @Param('id') id: string,
-  //   @Body() updateUserDto: Prisma.UserUpdateInput,
-  // ): Promise<User> {
-  //   return this.userService.update(id, updateUserDto);
-  // }
+  @Put(':id')
+  async update(
+    @Param('id') id: string,
+    @Body() data: UserUpdateDto,
+    @Res() res: any,
+  ): Promise<User> {
+    const updatedUser = await this.userService.update(id, data);
+    return res.status(HttpStatus.OK).json({
+      id: updatedUser.id,
+      name: updatedUser.name,
+      surname: updatedUser.surname,
+      email: updatedUser.email,
+      is_active: updatedUser.is_active,
+      is_banned: updatedUser.is_banned,
+      last_login: updatedUser.last_login,
+      created_at: updatedUser.created_at,
+    });
+  }
 
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<User> {
-    return this.userService.remove(id);
+  async remove(@Param('id') id: string, @Res() res: any): Promise<User> {
+    await this.userService.remove(id);
+    return res.status(HttpStatus.OK).json('User removed');
   }
 }
