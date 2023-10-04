@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 
+import { PrismaService } from '../common/orm/prisma.service';
 import { UserModule } from '../users/users.module';
 import { UserService } from '../users/users.service';
 import { AuthModule } from './auth.module';
@@ -22,7 +23,7 @@ import { BearerStrategy } from './bearer.strategy';
       }),
     }),
   ],
-  providers: [BearerStrategy, UserService],
+  providers: [BearerStrategy, UserService, PrismaService],
   exports: [PassportModule],
 })
 export class PassportWrapperModule {}

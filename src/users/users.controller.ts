@@ -13,7 +13,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiExtraModels, ApiTags } from '@nestjs/swagger';
 import { Prisma, User } from '@prisma/client';
 
 import {
@@ -29,7 +29,8 @@ import { UserService } from './users.service';
 // @UseGuards(AuthGuard())
 @ApiTags('User')
 @ApiExtraModels(PublicUserData, PaginatedDto)
-@UseGuards(AuthGuard())
+// @ApiBearerAuth()
+// @UseGuards(AuthGuard())
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -44,9 +45,19 @@ export class UserController {
     @Body() body: UserCreateDto,
     @Res() res: any,
   ) {
+    const newUser = await this.userService.createUserByAdmin(body);
     return res
       .status(HttpStatus.CREATED)
-      .json(await this.userService.createUserByAdmin(body));
+      .json(
+        newUser.id,
+        newUser.name,
+        newUser.surname,
+        newUser.email,
+        newUser.is_active,
+        newUser.is_banned,
+        newUser.last_login,
+        newUser.created_at,
+      );
   }
 
   @ApiPaginatedResponse('entities', PublicUserData)
@@ -66,7 +77,6 @@ export class UserController {
     await this.userService.unbanUser(+userId);
     // return { message: 'User unbanned successfully' };
   }
-
 
   @Get(':id')
   findOne(@Param('id') id: string): Promise<User> {

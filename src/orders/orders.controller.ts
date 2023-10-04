@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Orders, Prisma } from '@prisma/client';
 
 import { PublicOrderInfoDto } from '../common/query/order.query.dto';
@@ -19,6 +19,7 @@ import { OrdersService } from './orders.service';
 // @ApiBearerAuth()
 // @UseGuards(AuthGuard())
 @ApiTags('Orders')
+@ApiBearerAuth()
 @UseGuards(AuthGuard())
 @Controller('orders')
 export class OrdersController {

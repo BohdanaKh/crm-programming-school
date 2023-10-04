@@ -10,7 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { User } from '@prisma/client';
 
 import { ApiError } from '../common/errors/api.error';
@@ -62,18 +62,18 @@ export class AuthController {
         page: '1',
         sort: 'created_at',
         order: 'desc',
-        limit: '',
-        search: '',
-        name: '',
-        surname: '',
-        email: '',
-        phone: '',
-        age: '',
-        course: '',
-        courseFormat: '',
-        courseType: '',
-        status: '',
-        group: '',
+        limit: null,
+        search: null,
+        name: null,
+        surname: null,
+        email: null,
+        phone: null,
+        age: null,
+        course: null,
+        courseFormat: null,
+        courseType: null,
+        status: null,
+        group: null,
       });
     }
     return res
@@ -87,7 +87,7 @@ export class AuthController {
   async logout(@Res() res: any) {
     return res.status(HttpStatus.OK).json('logout');
   }
-
+  @ApiBearerAuth()
   @Post('activate')
   async activateUserByUser(
     @Res() res: any,
@@ -105,12 +105,23 @@ export class AuthController {
     return await this.userService.activateUserByUser(id, body);
   }
 
+  @ApiBearerAuth()
   @UseGuards(AuthGuard())
   @Post('activate/:id')
   async activateUserByAdmin(@Param('userId') userId: string) {
-    return this.authService.generateActionTokenUrl(
+    return this.authService.generateActivationTokenUrl(
       userId,
       EActionTokenTypes.Activate,
+    );
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard())
+  @Post('recovery/:id')
+  async recoveryPassword(@Param('userId') userId: string) {
+    return this.authService.generateActivationTokenUrl(
+      userId,
+      EActionTokenTypes.Recovery,
     );
   }
 }

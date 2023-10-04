@@ -3,8 +3,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 
 import { MailModule } from '../common/mail.module';
+import { OrdersModule } from '../orders/orders.module';
 import { UserModule } from '../users/users.module';
-import { UserService } from '../users/users.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { BearerStrategy } from './bearer.strategy';
@@ -12,6 +12,7 @@ import { BearerStrategy } from './bearer.strategy';
 @Module({
   imports: [
     UserModule,
+    OrdersModule,
     MailModule,
     PassportModule,
     JwtModule.registerAsync({
@@ -27,7 +28,7 @@ import { BearerStrategy } from './bearer.strategy';
       }),
     }),
   ],
-  providers: [AuthService, BearerStrategy, UserService],
+  providers: [AuthService, BearerStrategy],
   controllers: [AuthController],
   exports: [AuthService],
 })

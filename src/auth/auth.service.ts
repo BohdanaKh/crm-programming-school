@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import * as clipboardy from 'clipboardy';
+import { clipboard } from 'node-clipboardy';
 import * as process from 'process';
 
 import { ApiError } from '../common/errors/api.error';
@@ -15,12 +15,12 @@ import { JWTPayload } from './interface/auth.interface';
 export class AuthService {
   private salt = 10;
   constructor(
-    private userService: UserService,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
+    private readonly userService: UserService,
   ) {}
 
-  async generateActionTokenUrl(
+  async generateActivationTokenUrl(
     userId: string,
     tokenType: EActionTokenTypes,
   ): Promise<string> {
@@ -37,13 +37,15 @@ export class AuthService {
         case EActionTokenTypes.Activate:
           secret = process.env.JWT_ACTIVATE_SECRET;
           break;
-        case EActionTokenTypes.Forgot:
-          secret = process.env.JWT_FORGOT_SECRET;
+        case EActionTokenTypes.Recovery:
+          secret = process.env.JWT_RECOVERY_SECRET;
           break;
       }
 
-      const actionToken = this.signIn({ payload, secret });
-      clipboardy.writeSync(await actionToken);
+      const activationToken = await this.signIn({ payload, secret });
+      const activationUrl = `${process.env.BASE_URL}/activate/${activationToken}`;
+      console.log(activationUrl);
+      clipboard.write(activationUrl);
 
       const subject = 'Activate account';
       return this.mailService.send(
@@ -52,7 +54,7 @@ export class AuthService {
         EEmailActions.ACTIVATE,
         {
           name: user.name,
-          actionToken,
+          activationUrl,
         },
       );
     } catch (e) {

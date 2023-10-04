@@ -8,7 +8,6 @@ import { Role, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import * as process from 'process';
 
-import { AuthService } from '../auth/auth.service';
 import { ActivateUserDto } from '../auth/dto/user.register.dto';
 import { PrismaService } from '../common/orm/prisma.service';
 import { PaginatedDto } from '../common/pagination/response';
@@ -18,10 +17,7 @@ import { UserCreateDto } from './dto/user.create.dto';
 @Injectable()
 export class UserService {
   private salt = +process.env.SECRET_SALT;
-  constructor(
-    private prisma: PrismaService,
-    private readonly authService: AuthService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
   async getAllUsers(query: PublicUserInfoDto): Promise<PaginatedDto<User>> {
     const { sort, order } = query;
     const sortingOptions = {
@@ -171,11 +167,5 @@ export class UserService {
 
   async hashPassword(password: string) {
     return bcrypt.hash(password, this.salt);
-  }
-
-  async signIn(user) {
-    return await this.authService.signIn({
-      id: user.id.toString(),
-    });
   }
 }
