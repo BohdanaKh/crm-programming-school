@@ -11,15 +11,19 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { User } from '@prisma/client';
+import { Orders, User } from '@prisma/client';
+import * as dayjs from 'dayjs';
+
 
 import { ApiError } from '../common/errors/api.error';
+import { PrismaService } from '../common/orm/prisma.service';
+import { PaginatedDto } from '../common/pagination/response';
 import { OrdersService } from '../orders/orders.service';
 import { UserService } from '../users/users.service';
 import { AuthService } from './auth.service';
-import { UserLoginDto } from './dto/user.login.dto';
-import { ActivateUserDto } from './dto/user.register.dto';
-import { EActionTokenTypes } from './enums/action-token-type.enum';
+import { EActionTokenTypes } from './models_dtos/enums';
+import { JWTPayload } from './models_dtos/interface';
+import { ActivateUserDto, UserLoginDto } from './models_dtos/request';
 
 function LogoutGuard() {}
 
@@ -27,12 +31,16 @@ function LogoutGuard() {}
 @Controller()
 export class AuthController {
   constructor(
+    private prisma: PrismaService,
     private authService: AuthService,
     private userService: UserService,
     private ordersService: OrdersService,
   ) {}
   @Post('login')
-  async login(@Res() res: any, @Body() loginUser: UserLoginDto) {
+  async login(
+    @Body() loginUser: UserLoginDto,
+    @Res() res: any,
+  ): Promise<PaginatedDto<Orders>> {
     if (!loginUser.email && !loginUser.password) {
       return res
         .status(HttpStatus.FORBIDDEN)
@@ -51,30 +59,40 @@ export class AuthController {
     if (
       await this.authService.compareHash(loginUser.password, findUser.password)
     ) {
-      // const payload: JWTPayload = {
-      //   id: findUser.id.toString(),
-      //   userName: findUser.name,
-      //   role: findUser.role,
-      // };
-      // const token = await this.authService.signIn(payload);
-      // return res.status(HttpStatus.OK).json({ token });
-      return this.ordersService.findAllWithPagination({
-        page: '1',
-        sort: 'created_at',
-        order: 'desc',
-        limit: null,
-        search: null,
-        name: null,
-        surname: null,
-        email: null,
-        phone: null,
-        age: null,
-        course: null,
-        courseFormat: null,
-        courseType: null,
-        status: null,
-        group: null,
+      const payload: JWTPayload = {
+        id: findUser.id.toString(),
+        userName: findUser.name,
+        role: findUser.role,
+      };
+      const currentDate = dayjs();
+      const formattedDate = currentDate.format('MMMM DD, YYYY');
+      await this.prisma.user.update({
+        where: {
+          id: findUser.id,
+        },
+        data: {
+          last_login: formattedDate,
+        },
       });
+      const token = await this.authService.signIn(payload);
+      return res.status(HttpStatus.OK).json({ token });
+      // return this.ordersService.findAllWithPagination({
+      //   page: '1',
+      //   sort: 'created_at',
+      //   order: 'desc',
+      //   limit: null,
+      //   search: null,
+      //   name: null,
+      //   surname: null,
+      //   email: null,
+      //   phone: null,
+      //   age: null,
+      //   course: null,
+      //   courseFormat: null,
+      //   courseType: null,
+      //   status: null,
+      //   group: null,
+      // });
     }
     return res
       .status(HttpStatus.UNAUTHORIZED)
@@ -108,9 +126,9 @@ export class AuthController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard())
   @Post('activate/:id')
-  async activateUserByAdmin(@Param('userId') userId: string) {
+  async activateUserByAdmin(@Param('id') id: string) {
     return this.authService.generateActivationTokenUrl(
-      userId,
+      id,
       EActionTokenTypes.Activate,
     );
   }

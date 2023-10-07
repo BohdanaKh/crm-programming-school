@@ -80,7 +80,7 @@ export class OrdersService {
       },
       created_at_desc: {
         orderBy: {
-          created_at: 'DESC',
+          created_at: 'desc',
         },
       },
     };

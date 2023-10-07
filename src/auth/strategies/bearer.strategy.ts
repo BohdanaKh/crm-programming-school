@@ -4,9 +4,8 @@ import { PassportStrategy } from '@nestjs/passport';
 import { User } from '@prisma/client';
 import { Strategy } from 'passport-http-bearer';
 
-import { UserService } from '../users/users.service';
-import { AuthService } from './auth.service';
-import { PublicUserData } from "../users/interface/user.interface";
+import { UserService } from '../../users/users.service';
+import { AuthService } from '../auth.service';
 
 @Injectable()
 export class BearerStrategy extends PassportStrategy(Strategy, 'bearer') {

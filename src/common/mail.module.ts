@@ -14,7 +14,7 @@ import { MailService } from './mail/mail.service';
         port: 465,
         secure: true,
         auth: {
-          type: 'login',
+          // type: 'login',
           user: process.env.EMAIL_USER,
           pass: process.env.EMAIL_PASSWORD,
         },
@@ -22,9 +22,13 @@ import { MailService } from './mail/mail.service';
       defaults: {
         from: '"No Reply" <no-reply@example.com>',
       },
+      preview: true,
       template: {
-        dir: path.join(__dirname, '/email-templates'),
+        dir: path.join(__dirname, '..', '/email-templates'),
         adapter: new HandlebarsAdapter(),
+        options: {
+          strict: true,
+        },
       },
     }),
   ],

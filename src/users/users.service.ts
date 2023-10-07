@@ -8,74 +8,85 @@ import { Role, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import * as process from 'process';
 
-import { ActivateUserDto } from '../auth/dto/user.register.dto';
+import { ActivateUserDto } from '../auth/models_dtos/request';
 import { PrismaService } from '../common/orm/prisma.service';
 import { PaginatedDto } from '../common/pagination/response';
 import { PublicUserInfoDto } from '../common/query/user.query.dto';
-import { UserCreateDto } from './dto/user.create.dto';
-import { UserUpdateDto } from "./dto/user.update.dto";
-import { PublicUserData } from "./interface/user.interface";
+import { UserCreateRequestDto, UserUpdateRequestDto } from './models/request';
+import { UserResponseDto } from './models/response';
 
 @Injectable()
 export class UserService {
   private salt = +process.env.SECRET_SALT;
   constructor(private prisma: PrismaService) {}
-  async getAllUsers(query: PublicUserInfoDto): Promise<PaginatedDto<User>> {
-    const { sort, order } = query;
-    const sortingOptions = {
-      id: {
-        orderBy: {
-          id: order,
-        },
-      },
-      email: {
-        orderBy: {
-          email: order,
-        },
-      },
-      name: {
-        orderBy: {
-          name: order,
-        },
-      },
-      surname: {
-        orderBy: {
-          surname: order,
-        },
-      },
-      isActive: {
-        orderBy: {
-          isActive: order,
-        },
-      },
-      lastLogin: {
-        orderBy: {
-          lastLogin: order,
-        },
-      },
-      created_at: {
-        orderBy: {
-          created_at: order,
-        },
-      },
-      created_at_desc: {
-        orderBy: {
-          created_at: 'DESC',
-        },
-      },
-    };
-    const orderBy =
-      sortingOptions[sort]['orderBy'] ||
-      sortingOptions.created_at_desc['orderBy'];
+  async getAllUsers(
+    query: PublicUserInfoDto,
+  ): Promise<PaginatedDto<UserResponseDto>> {
+    // const { sort, order } = query;
+    // const sortingOptions = {
+    //   id: {
+    //     orderBy: {
+    //       id: order,
+    //     },
+    //   },
+    //   email: {
+    //     orderBy: {
+    //       email: order,
+    //     },
+    //   },
+    //   name: {
+    //     orderBy: {
+    //       name: order,
+    //     },
+    //   },
+    //   surname: {
+    //     orderBy: {
+    //       surname: order,
+    //     },
+    //   },
+    //   isActive: {
+    //     orderBy: {
+    //       isActive: order,
+    //     },
+    //   },
+    //   lastLogin: {
+    //     orderBy: {
+    //       lastLogin: order,
+    //     },
+    //   },
+    //   created_at: {
+    //     orderBy: {
+    //       created_at: order,
+    //     },
+    //   },
+    //   created_at_desc: {
+    //     orderBy: {
+    //       created_at: 'DESC',
+    //     },
+    //   },
+    // };
+    // const orderBy =
+    //   sortingOptions[sort]['orderBy'] ||
+    //   sortingOptions.created_at_desc['orderBy'];
 
     const limit = 10;
     const page = +query.page || 1;
     const skip = (page - 1) * limit;
     const count = await this.prisma.user.count();
-    const entities = await this.prisma.user.findMany({
+    const entities: UserResponseDto[] = await this.prisma.user.findMany({
       take: limit,
       skip: skip,
-      orderBy,
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        surname: true,
+        is_active: true,
+        last_login: true,
+      },
+      orderBy: {
+        created_at: 'desc',
+      },
     });
     return {
       page: page,
@@ -84,7 +95,7 @@ export class UserService {
       entities,
     };
   }
-  async createUserByAdmin(userData: UserCreateDto): Promise<User> {
+  async createUserByAdmin(userData: UserCreateRequestDto): Promise<User> {
     const findUser = await this.prisma.user.findUnique({
       where: { email: userData.email.trim() },
     });
@@ -94,7 +105,7 @@ export class UserService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    let hashedPassword;
+    let hashedPassword: string;
     userData.password
       ? (hashedPassword = await this.hashPassword(userData.password))
       : (hashedPassword = null);
@@ -147,7 +158,7 @@ export class UserService {
     return user;
   }
 
-  async update(userId: string, data: UserUpdateDto): Promise<User> {
+  async update(userId: string, data: UserUpdateRequestDto): Promise<User> {
     return this.prisma.user.update({
       where: { id: +userId },
       data,

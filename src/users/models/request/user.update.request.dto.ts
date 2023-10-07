@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 
-export class UserUpdateDto {
+export class UserUpdateRequestDto {
   @ApiProperty()
   @IsString()
   @IsOptional()

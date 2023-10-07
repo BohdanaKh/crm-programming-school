@@ -19,8 +19,8 @@ import { OrdersService } from './orders.service';
 // @ApiBearerAuth()
 // @UseGuards(AuthGuard())
 @ApiTags('Orders')
-@ApiBearerAuth()
-@UseGuards(AuthGuard())
+// @ApiBearerAuth()
+// @UseGuards(AuthGuard())
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}

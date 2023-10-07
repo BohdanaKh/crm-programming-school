@@ -6,7 +6,7 @@ import { PrismaService } from '../common/orm/prisma.service';
 import { UserModule } from '../users/users.module';
 import { UserService } from '../users/users.service';
 import { AuthModule } from './auth.module';
-import { BearerStrategy } from './bearer.strategy';
+import { BearerStrategy } from './strategies';
 
 @Global()
 @Module({

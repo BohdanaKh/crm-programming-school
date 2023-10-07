@@ -10,7 +10,7 @@ import {
   IsString,
 } from 'class-validator';
 
-export class UserCreateDto {
+export class UserCreateRequestDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
@@ -39,7 +39,7 @@ export class UserCreateDto {
   @ApiProperty()
   @IsDate()
   @IsOptional()
-  last_login: Date;
+  last_login: string;
 
   @ApiProperty()
   @IsBoolean()

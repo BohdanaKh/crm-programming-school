@@ -1,15 +1,15 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { clipboard } from 'node-clipboardy';
+// import { clipboard } from 'node-clipboardy';
 import * as process from 'process';
 
 import { ApiError } from '../common/errors/api.error';
 import { EEmailActions } from '../common/mail/email.enum';
 import { MailService } from '../common/mail/mail.service';
 import { UserService } from '../users/users.service';
-import { EActionTokenTypes } from './enums/action-token-type.enum';
-import { JWTPayload } from './interface/auth.interface';
+import { EActionTokenTypes } from './models_dtos/enums';
+import { JWTPayload } from './models_dtos/interface';
 
 @Injectable()
 export class AuthService {
@@ -45,7 +45,7 @@ export class AuthService {
       const activationToken = await this.signIn({ payload, secret });
       const activationUrl = `${process.env.BASE_URL}/activate/${activationToken}`;
       console.log(activationUrl);
-      clipboard.write(activationUrl);
+      // clipboard.write(activationUrl);
 
       const subject = 'Activate account';
       return this.mailService.send(

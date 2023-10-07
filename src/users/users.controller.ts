@@ -21,9 +21,9 @@ import {
   PaginatedDto,
 } from '../common/pagination/response';
 import { PublicUserInfoDto } from '../common/query/user.query.dto';
-import { UserCreateDto } from './dto/user.create.dto';
-import { UserUpdateDto } from './dto/user.update.dto';
-import { PublicUserData } from './interface/user.interface';
+import { PublicUserData } from './models/interface';
+import { UserCreateRequestDto, UserUpdateRequestDto } from './models/request';
+import { UserResponseDto } from './models/response';
 import { UserService } from './users.service';
 
 // @ApiBearerAuth()
@@ -36,14 +36,15 @@ import { UserService } from './users.service';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  // @ApiResponse({ status: HttpStatus.CREATED, type: UserCreateDto })
+
+  // @ApiResponse({ status: HttpStatus.CREATED, type: UserCreateRequestDto })
   @Post('create')
   //   // if (!req.userAbility.can('create', 'User')) {
   //   //   throw new HttpException('Forbidden resource', 403);
   //   // }
   async createUser(
     @Req() req: any,
-    @Body() body: UserCreateDto,
+    @Body() body: UserCreateRequestDto,
     @Res() res: any,
   ) {
     const newUser = await this.userService.createUserByAdmin(body);
@@ -100,7 +101,7 @@ export class UserController {
   @Put(':id')
   async update(
     @Param('id') id: string,
-    @Body() data: UserUpdateDto,
+    @Body() data: UserUpdateRequestDto,
     @Res() res: any,
   ): Promise<User> {
     const updatedUser = await this.userService.update(id, data);
