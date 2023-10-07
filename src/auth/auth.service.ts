@@ -74,7 +74,7 @@ export class AuthService {
   //   };
   // }
   async signIn(data): Promise<string> {
-    return this.jwtService.sign(data);
+    return this.jwtService.signAsync(data);
   }
 
   // async validateUser(data: UserLoginDto): Promise<User> {
@@ -87,9 +87,9 @@ export class AuthService {
   //   return null;
   // }
 
-  async verify(token: string): Promise<JWTPayload> {
+  async verify(token: string, secret: string): Promise<JWTPayload> {
     try {
-      return await this.jwtService.verifyAsync(token);
+      return await this.jwtService.verifyAsync(token, { secret });
     } catch (err) {
       console.log(new Date().toISOString(), token);
       throw new UnauthorizedException();

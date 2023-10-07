@@ -14,16 +14,19 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Orders, User } from '@prisma/client';
 import * as dayjs from 'dayjs';
 
-
 import { ApiError } from '../common/errors/api.error';
 import { PrismaService } from '../common/orm/prisma.service';
 import { PaginatedDto } from '../common/pagination/response';
+import { RoleGuard } from '../common/rbac/role.guard';
+import { Roles } from '../common/rbac/roles.decorator';
 import { OrdersService } from '../orders/orders.service';
 import { UserService } from '../users/users.service';
 import { AuthService } from './auth.service';
 import { EActionTokenTypes } from './models_dtos/enums';
 import { JWTPayload } from './models_dtos/interface';
 import { ActivateUserDto, UserLoginDto } from './models_dtos/request';
+import { BearerAuthGuard } from './strategies/bearer-auth.guard';
+import * as process from "process";
 
 function LogoutGuard() {}
 
@@ -112,7 +115,8 @@ export class AuthController {
     @Query() token: string,
     @Body() body: ActivateUserDto,
   ): Promise<User> {
-    const jwtPayload = await this.authService.verify(token);
+    const secret = process.env.JWT_ACTIVATE_SECRET;
+    const jwtPayload = await this.authService.verify(token, secret);
     console.log(jwtPayload);
     const { id } = jwtPayload;
     try {
@@ -124,7 +128,8 @@ export class AuthController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(AuthGuard())
+  @Roles('admin')
+  @UseGuards(BearerAuthGuard, RoleGuard)
   @Post('activate/:id')
   async activateUserByAdmin(@Param('id') id: string) {
     return this.authService.generateActivationTokenUrl(
