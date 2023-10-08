@@ -39,7 +39,7 @@ export class AuthService {
           secret = process.env.JWT_RECOVERY_SECRET;
           break;
       }
-
+      console.log(secret);
       const activationToken = await this.signIn({ payload, secret });
       const activationUrl = `${process.env.BASE_URL}/activate/${activationToken}`;
       console.log(process.env.EMAIL_USER);
@@ -86,9 +86,10 @@ export class AuthService {
   //   return null;
   // }
 
-  async verify(token: string, secret: string): Promise<JWTPayload> {
+  async verify(token: string): Promise<JWTPayload> {
     try {
-      return await this.jwtService.verifyAsync(token, { secret });
+      const jwtData = await this.jwtService.verifyAsync(token);
+      return jwtData.payload;
     } catch (err) {
       console.log(new Date().toISOString(), token);
       throw new UnauthorizedException();

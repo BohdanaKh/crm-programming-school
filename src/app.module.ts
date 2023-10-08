@@ -27,17 +27,17 @@ import { UserModule } from './users/users.module';
     OrdersModule,
     UserModule,
     MailModule,
-    PassportWrapperModule,
+    // PassportWrapperModule,
     AdminModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
     PrismaService,
-    {
-      provide: APP_GUARD,
-      useClass: RoleGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: RoleGuard,
+    // },
   ],
   exports: [PrismaService],
 })

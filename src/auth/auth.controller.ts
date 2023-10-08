@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   Res,
   UseGuards,
@@ -81,23 +82,23 @@ export class AuthController {
       const token = await this.authService.signIn(payload);
       await this.redisClient.setEx(token, 10000, token);
       return res.status(HttpStatus.OK).json({ token });
-    //   return this.ordersService.findAllWithPagination({
-    //     page: '1',
-    //     sort: 'created_at',
-    //     order: 'desc',
-    //     limit: null,
-    //     search: null,
-    //     name: null,
-    //     surname: null,
-    //     email: null,
-    //     phone: null,
-    //     age: null,
-    //     course: null,
-    //     courseFormat: null,
-    //     courseType: null,
-    //     status: null,
-    //     group: null,
-    //   });
+      //   return this.ordersService.findAllWithPagination({
+      //     page: '1',
+      //     sort: 'created_at',
+      //     order: 'desc',
+      //     limit: null,
+      //     search: null,
+      //     name: null,
+      //     surname: null,
+      //     email: null,
+      //     phone: null,
+      //     age: null,
+      //     course: null,
+      //     courseFormat: null,
+      //     courseType: null,
+      //     status: null,
+      //     group: null,
+      //   });
     }
     return res
       .status(HttpStatus.UNAUTHORIZED)
@@ -110,23 +111,23 @@ export class AuthController {
   async logout(@Res() res: any) {
     return res.status(HttpStatus.OK).json('logout');
   }
-  @ApiBearerAuth()
-  @Post('activate')
+  // @ApiBearerAuth()
+  @Put('activate/:activationToken')
   async activateUserByUser(
     @Res() res: any,
-    @Query() token: string,
+    @Param('activationToken') activationToken: string,
     @Body() body: ActivateUserDto,
-  ): Promise<User> {
-    const secret = process.env.JWT_ACTIVATE_SECRET;
-    const jwtPayload = await this.authService.verify(token, secret);
+  ): Promise<void> {
+    // const secret = process.env.JWT_ACTIVATE_SECRET;
+    const jwtPayload = await this.authService.verify(activationToken);
     console.log(jwtPayload);
     const { id } = jwtPayload;
-    try {
-      await this.userService.getUserById(id);
-    } catch (err) {
-      throw new ApiError(err.body, err.status);
-    }
-    return await this.userService.activateUserByUser(id, body);
+    // try {
+    //   await this.userService.getUserById(id);
+    // } catch (err) {
+    //   throw new ApiError(err.body, err.status);
+    // }
+    await this.userService.activateUserByUser(id, body);
   }
 
   @ApiBearerAuth()
@@ -143,7 +144,7 @@ export class AuthController {
   @ApiBearerAuth()
   @Roles('admin')
   @UseGuards(BearerAuthGuard, RoleGuard)
-  @Post('recovery/:id')
+  @Post('recovery/:userId')
   async recoveryPassword(@Param('userId') userId: string) {
     return this.authService.generateActivationTokenUrl(
       userId,

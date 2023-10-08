@@ -1,36 +1,90 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--  <style>-->
+<!--    .content {-->
+<!--      font-family: 'Inter', serif;-->
+<!--      font-style: normal;-->
+<!--      font-weight: 400;-->
+<!--      font-size: 20px;-->
+<!--      color: #191A1D;-->
+<!--      margin: auto;-->
+<!--      width: 600px;-->
+<!--      height: 723px;-->
+<!--      left: 212px;-->
+<!--      top: 60px;-->
+<!--      background: #FFFFFF;-->
+<!--      border-radius: 20px;-->
+<!--      word-break: break-all;-->
+<!--    }-->
+<!--  </style>-->
+<!--  <title></title>-->
+<!--</head>-->
+<!--<body>-->
+<!--<div class="content">-->
+<!--    <table style="width: 100%; padding: 45px 35px; box-sizing: border-box">-->
+<!--      <tr>-->
+<!--        <td style="text-align: center;">-->
+<!--          <p style="margin: 17px 0 0;">-->
+<!--            To activate your account, please click on the link: {{activationUrl}}-->
+<!--          </p>-->
+<!--        </td>-->
+<!--      </tr>-->
+<!--    </table>-->
+<!--  </div>-->
+<!--  </body>-->
+<!--</html>-->
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
+  <meta charset="utf-8">
+  <title></title>
   <style>
-    .content {
-      font-family: 'Inter', serif;
-      font-style: normal;
-      font-weight: 400;
-      font-size: 20px;
-      color: #191A1D;
-      margin: auto;
-      width: 600px;
-      height: 723px;
-      left: 212px;
-      top: 60px;
-      background: #FFFFFF;
-      border-radius: 20px;
-      word-break: break-all;
+    .container {
+      width: 100%;
+      height: 100%;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+    .email {
+      width: 80%;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+    }
+    .email-header {
+      background-color: #333;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+    .email-body {
+      padding: 20px;
+    }
+    .email-footer {
+      background-color: #333;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
     }
   </style>
-  <title></title>
 </head>
 <body>
-<div class="content">
-    <table style="width: 100%; padding: 45px 35px; box-sizing: border-box">
-      <tr>
-        <td style="text-align: center;">
-          <p style="margin: 17px 0 0;">
-            To activate your account, please click on the link: {{activationUrl}}
-          </p>
-        </td>
-      </tr>
-    </table>
+<div class="container">
+  <div class="email">
+    <div class="email-header">
+      <h1></h1>
+    </div>
+    <div class="email-body">
+      <p>To activate your account, please click on the link: {{activationUrl}} </p>
+    </div>
+    <div class="email-footer">
+      <p></p>
+    </div>
   </div>
-  </body>
+</div>
+</body>
 </html>
+`;
+}

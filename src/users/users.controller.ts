@@ -74,13 +74,11 @@ export class UserController {
   @Post('ban/:userId')
   async banUser(@Param('userId') userId: string): Promise<void> {
     await this.userService.banUser(+userId);
-    // return { message: 'User banned successfully' };
   }
 
   @Post('unban/:userId')
   async unbanUser(@Param('userId') userId: string): Promise<void> {
     await this.userService.unbanUser(+userId);
-    // return { message: 'User unbanned successfully' };
   }
 
   @Get(':id')
