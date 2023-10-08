@@ -6,17 +6,17 @@ import { SentMessageInfo } from 'nodemailer';
 export class MailService {
   constructor(private readonly mailerService: MailerService) {}
 
-  send(
+  async send(
     to: string,
     subject: string,
     template: string,
-    templateData?: any,
+    context: Record<string, string | number> = {},
   ): Promise<SentMessageInfo> {
-    return this.mailerService.sendMail({
+    return await this.mailerService.sendMail({
       to,
       subject,
       template,
-      context: templateData,
+      context,
     });
   }
 }

@@ -9,24 +9,24 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Orders, User } from '@prisma/client';
+import { InjectRedisClient, RedisClient } from '@webeleon/nestjs-redis';
 import * as dayjs from 'dayjs';
+import * as process from 'process';
 
+import { Roles } from '../common/decorators/roles.decorator';
 import { ApiError } from '../common/errors/api.error';
+import { BearerAuthGuard } from '../common/guards/bearer-auth.guard';
+import { RoleGuard } from '../common/guards/role.guard';
 import { PrismaService } from '../common/orm/prisma.service';
 import { PaginatedDto } from '../common/pagination/response';
-import { RoleGuard } from '../common/rbac/role.guard';
-import { Roles } from '../common/rbac/roles.decorator';
 import { OrdersService } from '../orders/orders.service';
 import { UserService } from '../users/users.service';
 import { AuthService } from './auth.service';
 import { EActionTokenTypes } from './models_dtos/enums';
 import { JWTPayload } from './models_dtos/interface';
 import { ActivateUserDto, UserLoginDto } from './models_dtos/request';
-import { BearerAuthGuard } from './strategies/bearer-auth.guard';
-import * as process from "process";
 
 function LogoutGuard() {}
 
@@ -38,6 +38,7 @@ export class AuthController {
     private authService: AuthService,
     private userService: UserService,
     private ordersService: OrdersService,
+    @InjectRedisClient() private redisClient: RedisClient,
   ) {}
   @Post('login')
   async login(
@@ -78,24 +79,25 @@ export class AuthController {
         },
       });
       const token = await this.authService.signIn(payload);
+      await this.redisClient.setEx(token, 10000, token);
       return res.status(HttpStatus.OK).json({ token });
-      // return this.ordersService.findAllWithPagination({
-      //   page: '1',
-      //   sort: 'created_at',
-      //   order: 'desc',
-      //   limit: null,
-      //   search: null,
-      //   name: null,
-      //   surname: null,
-      //   email: null,
-      //   phone: null,
-      //   age: null,
-      //   course: null,
-      //   courseFormat: null,
-      //   courseType: null,
-      //   status: null,
-      //   group: null,
-      // });
+    //   return this.ordersService.findAllWithPagination({
+    //     page: '1',
+    //     sort: 'created_at',
+    //     order: 'desc',
+    //     limit: null,
+    //     search: null,
+    //     name: null,
+    //     surname: null,
+    //     email: null,
+    //     phone: null,
+    //     age: null,
+    //     course: null,
+    //     courseFormat: null,
+    //     courseType: null,
+    //     status: null,
+    //     group: null,
+    //   });
     }
     return res
       .status(HttpStatus.UNAUTHORIZED)
@@ -103,7 +105,7 @@ export class AuthController {
   }
 
   // @UseGuards(JwtAuthGuard)
-  @UseGuards(AuthGuard(), LogoutGuard)
+  @UseGuards(BearerAuthGuard, LogoutGuard)
   @Post('logout')
   async logout(@Res() res: any) {
     return res.status(HttpStatus.OK).json('logout');
@@ -139,7 +141,8 @@ export class AuthController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(AuthGuard())
+  @Roles('admin')
+  @UseGuards(BearerAuthGuard, RoleGuard)
   @Post('recovery/:id')
   async recoveryPassword(@Param('userId') userId: string) {
     return this.authService.generateActivationTokenUrl(

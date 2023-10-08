@@ -9,9 +9,13 @@ import { UserModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { BearerStrategy } from './strategies';
+import { RedisModule } from "@webeleon/nestjs-redis";
 
 @Module({
   imports: [
+    RedisModule.forRoot({
+      url: 'redis://localhost:6379',
+    }),
     UserModule,
     OrdersModule,
     MailModule,

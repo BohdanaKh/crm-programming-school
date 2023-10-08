@@ -1,8 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-// import { clipboard } from 'node-clipboardy';
-import * as process from 'process';
 
 import { ApiError } from '../common/errors/api.error';
 import { EEmailActions } from '../common/mail/email.enum';
@@ -44,6 +42,8 @@ export class AuthService {
 
       const activationToken = await this.signIn({ payload, secret });
       const activationUrl = `${process.env.BASE_URL}/activate/${activationToken}`;
+      console.log(process.env.EMAIL_USER);
+      console.log(process.env.EMAIL_PASSWORD);
       console.log(activationUrl);
       // clipboard.write(activationUrl);
 
@@ -53,7 +53,6 @@ export class AuthService {
         subject,
         EEmailActions.ACTIVATE,
         {
-          name: user.name,
           activationUrl,
         },
       );

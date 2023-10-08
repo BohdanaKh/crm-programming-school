@@ -2,8 +2,8 @@ import { Controller, Get, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-import { RoleGuard } from '../common/rbac/role.guard';
-import { Roles } from '../common/rbac/roles.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
+import { RoleGuard } from "../common/guards/role.guard";
 
 @ApiTags('Admin')
 @ApiBearerAuth()

@@ -7,10 +7,15 @@ import { UserModule } from '../users/users.module';
 import { UserService } from '../users/users.service';
 import { AuthModule } from './auth.module';
 import { BearerStrategy } from './strategies';
+import { RedisModule } from "@webeleon/nestjs-redis";
+
 
 @Global()
 @Module({
   imports: [
+    RedisModule.forRoot({
+      url: 'redis://localhost:6379',
+    }),
     UserModule,
     AuthModule,
     PassportModule.register({ defaultStrategy: 'bearer' }),

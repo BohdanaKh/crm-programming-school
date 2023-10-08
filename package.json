@@ -40,7 +40,6 @@
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "handlebars": "^4.7.8",
     "husky": "^8.0.3",
-    "node-clipboardy": "^1.0.3",
     "nodemailer": "^6.9.5",
     "passport": "^0.6.0",
     "passport-http-bearer": "^1.0.1",

@@ -21,11 +21,14 @@ export class RoleGuard implements CanActivate {
       return true;
     }
     const request = context.switchToHttp().getRequest();
-    const token = request.headers.authorization?.split(' ')[1];
-    console.log(token);
-    const secret = process.env.JWT_SECRET_KEY;
-    const user = await this.authService.verify(token, secret);
-    console.log(user);
-    return this.matchRoles(roles, user.role);
+    if (request.headers && request.headers.authorization) {
+      const token = request.headers.authorization?.split(' ')[1];
+
+      const secret = process.env.JWT_SECRET_KEY;
+      const user = await this.authService.verify(token, secret);
+      console.log(user);
+      return this.matchRoles(roles, user.role);
+    }
+    return false;
   }
 }
