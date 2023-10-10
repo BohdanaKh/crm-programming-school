@@ -42,6 +42,11 @@ export class UserCreateRequestDto {
   last_login: string;
 
   @ApiProperty()
+  @IsDate()
+  @IsOptional()
+  created_at: Date;
+
+  @ApiProperty()
   @IsBoolean()
   @IsOptional()
   is_banned: boolean;

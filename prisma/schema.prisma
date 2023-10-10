@@ -38,7 +38,7 @@ model User {
   last_login String?
   created_at DateTime? @default(now())
   is_banned  Boolean?  @default(false)
-  roles      Role?     @default(manager)
+  role       Role?     @default(manager)
   orders     Orders[]
 }
 

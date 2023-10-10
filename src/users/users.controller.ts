@@ -67,7 +67,7 @@ export class UserController {
 
   @ApiPaginatedResponse('entities', PublicUserData)
   @Get()
-  async findAll(@Query() query: PublicUserInfoDto) {
+  async findAll(@Query() query: PublicUserInfoDto):Promise<PaginatedDto<UserResponseDto>> {
     return this.userService.getAllUsers(query);
   }
 
