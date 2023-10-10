@@ -16,6 +16,9 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiExtraModels, ApiTags } from '@nestjs/swagger';
 import { User } from '@prisma/client';
 
+import { Roles } from '../common/decorators/roles.decorator';
+import { BearerAuthGuard } from '../common/guards/bearer-auth.guard';
+import { RoleGuard } from '../common/guards/role.guard';
 import {
   ApiPaginatedResponse,
   PaginatedDto,
@@ -36,12 +39,10 @@ import { UserService } from './users.service';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-
   // @ApiResponse({ status: HttpStatus.CREATED, type: UserCreateRequestDto })
+  @Roles('admin')
+  @UseGuards(AuthGuard(), RoleGuard)
   @Post('create')
-  //   // if (!req.userAbility.can('create', 'User')) {
-  //   //   throw new HttpException('Forbidden resource', 403);
-  //   // }
   async createUser(
     @Req() req: any,
     @Body() body: UserCreateRequestDto,
@@ -67,7 +68,9 @@ export class UserController {
 
   @ApiPaginatedResponse('entities', PublicUserData)
   @Get()
-  async findAll(@Query() query: PublicUserInfoDto):Promise<PaginatedDto<UserResponseDto>> {
+  async findAll(
+    @Query() query: PublicUserInfoDto,
+  ): Promise<PaginatedDto<UserResponseDto>> {
     return this.userService.getAllUsers(query);
   }
 
@@ -96,6 +99,8 @@ export class UserController {
     });
   }
 
+  @Roles('admin')
+  @UseGuards(BearerAuthGuard, RoleGuard)
   @Put(':id')
   async update(
     @Param('id') id: string,

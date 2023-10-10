@@ -15,6 +15,7 @@ import { Orders, Prisma } from '@prisma/client';
 import { PublicOrderInfoDto } from '../common/query/order.query.dto';
 // import { Order } from '@prisma/client';
 import { OrdersService } from './orders.service';
+import { PaginatedDto } from "../common/pagination/response";
 
 // @ApiBearerAuth()
 // @UseGuards(AuthGuard())
@@ -26,7 +27,7 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Get()
-  async findAll(@Query() query: PublicOrderInfoDto) {
+  async findAll(@Query() query: PublicOrderInfoDto): Promise<PaginatedDto<Orders>> {
     return this.ordersService.findAllWithPagination(query);
   }
 

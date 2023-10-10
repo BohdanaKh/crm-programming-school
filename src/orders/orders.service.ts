@@ -12,81 +12,124 @@ export class OrdersService {
     query: PublicOrderInfoDto,
   ): Promise<PaginatedDto<Orders>> {
     const { sort, order } = query;
+    // const sortingOptions = {
+    //   id: {
+    //     orderBy: {
+    //       id: order,
+    //     },
+    //   },
+    //   name: {
+    //     orderBy: {
+    //       name: order,
+    //     },
+    //   },
+    //   surname: {
+    //     orderBy: {
+    //       surname: order,
+    //     },
+    //   },
+    //   email: {
+    //     orderBy: {
+    //       email: order,
+    //     },
+    //   },
+    //   phone: {
+    //     orderBy: {
+    //       phone: order,
+    //     },
+    //   },
+    //   age: {
+    //     orderBy: {
+    //       age: order,
+    //     },
+    //   },
+    //   course: {
+    //     orderBy: {
+    //       course: order,
+    //     },
+    //   },
+    //   course_format: {
+    //     orderBy: {
+    //       course_format: order,
+    //     },
+    //   },
+    //   course_type: {
+    //     orderBy: {
+    //       course_type: order,
+    //     },
+    //   },
+    //   status: {
+    //     orderBy: {
+    //       status: order,
+    //     },
+    //   },
+    //   sum: {
+    //     orderBy: {
+    //       sum: order,
+    //     },
+    //   },
+    //   alreadyPaid: {
+    //     orderBy: {
+    //       alreadyPaid: order,
+    //     },
+    //   },
+    //   created_at: {
+    //     orderBy: {
+    //       created_at: order,
+    //     },
+    //   },
+    //   created_at_desc: {
+    //     orderBy: {
+    //       created_at: 'desc',
+    //     },
+    //   },
+    // };
     const sortingOptions = {
       id: {
-        orderBy: {
-          id: order,
-        },
+        id: order,
       },
       name: {
-        orderBy: {
-          name: order,
-        },
+        name: order,
       },
       surname: {
-        orderBy: {
-          surname: order,
-        },
+        surname: order,
       },
       email: {
-        orderBy: {
-          email: order,
-        },
+        email: order,
       },
       phone: {
-        orderBy: {
-          phone: order,
-        },
+        phone: order,
       },
       age: {
-        orderBy: {
-          age: order,
-        },
+        age: order,
       },
       course: {
-        orderBy: {
-          course: order,
-        },
+        course: order,
       },
       course_format: {
-        orderBy: {
-          course_format: order,
-        },
+        course_format: order,
       },
       course_type: {
-        orderBy: {
-          course_type: order,
-        },
+        course_type: order,
       },
       status: {
-        orderBy: {
-          status: order,
-        },
+        status: order,
       },
       sum: {
-        orderBy: {
-          sum: order,
-        },
+        sum: order,
       },
       alreadyPaid: {
-        orderBy: {
-          alreadyPaid: order,
-        },
+        alreadyPaid: order,
       },
       created_at: {
-        orderBy: {
-          created_at: order,
-        },
+        created_at: order,
       },
       created_at_desc: {
-        orderBy: {
-          created_at: 'desc',
-        },
+        created_at: 'desc',
       },
     };
-    const orderBy =
-      sortingOptions[sort]['orderBy'] ||
-      sortingOptions.created_at_desc['orderBy'];
+    const orderBy = sortingOptions[sort] || sortingOptions.created_at_desc;
+
 
     const limit = 25;
     const page = +query.page || 1;

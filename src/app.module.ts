@@ -27,7 +27,7 @@ import { UserModule } from './users/users.module';
     OrdersModule,
     UserModule,
     MailModule,
-    // PassportWrapperModule,
+    PassportWrapperModule,
     AdminModule,
   ],
   controllers: [AppController],

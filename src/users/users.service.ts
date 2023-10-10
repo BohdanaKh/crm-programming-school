@@ -128,7 +128,7 @@ export class UserService {
     userData: ActivateUserDto,
   ): Promise<void> {
     const passwordHash = await this.hashPassword(userData.password);
-    this.prisma.user.update({
+    await this.prisma.user.update({
       where: { id: +id },
       data: { password: passwordHash, is_active: true },
     });

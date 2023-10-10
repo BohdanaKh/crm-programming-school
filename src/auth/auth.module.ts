@@ -19,7 +19,7 @@ import { RedisModule } from "@webeleon/nestjs-redis";
     UserModule,
     OrdersModule,
     MailModule,
-    PassportModule,
+    PassportModule.register({ defaultStrategy: 'bearer' }),
     JwtModule.registerAsync({
       useFactory: async () => ({
         secret: process.env.JWT_SECRET_KEY,

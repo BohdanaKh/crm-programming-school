@@ -8,6 +8,7 @@ import { UserService } from '../users/users.service';
 import { AuthModule } from './auth.module';
 import { BearerStrategy } from './strategies';
 import { RedisModule } from "@webeleon/nestjs-redis";
+import { AdminModule } from "../admin/admin.module";
 
 
 @Global()
@@ -18,6 +19,7 @@ import { RedisModule } from "@webeleon/nestjs-redis";
     }),
     UserModule,
     AuthModule,
+    AdminModule,
     PassportModule.register({ defaultStrategy: 'bearer' }),
     JwtModule.registerAsync({
       useFactory: async () => ({

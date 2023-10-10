@@ -4,7 +4,7 @@ import { InjectRedisClient, RedisClient } from '@webeleon/nestjs-redis';
 import * as bcrypt from 'bcrypt';
 import * as copyPaste from 'copy-paste';
 import * as dayjs from 'dayjs';
-
+import * as process from 'process';
 
 import { ApiError } from '../common/errors/api.error';
 import { EEmailActions } from '../common/mail/email.enum';
@@ -24,7 +24,6 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
     private readonly userService: UserService,
-    private ordersService: OrdersService,
     @InjectRedisClient() private redisClient: RedisClient,
   ) {}
 
@@ -56,23 +55,23 @@ export class AuthService {
       const token = await this.signIn(payload);
       await this.redisClient.setEx(token, 10000, token);
 
-      await this.ordersService.findAllWithPagination({
-        page: '1',
-        sort: 'created_at',
-        order: 'desc',
-        limit: null,
-        search: null,
-        name: null,
-        surname: null,
-        email: null,
-        phone: null,
-        age: null,
-        course: null,
-        courseFormat: null,
-        courseType: null,
-        status: null,
-        group: null,
-      });
+      // await this.ordersService.findAllWithPagination({
+      //   page: '1',
+      //   sort: 'created_at',
+      //   order: 'desc',
+      //   limit: null,
+      //   search: null,
+      //   name: null,
+      //   surname: null,
+      //   email: null,
+      //   phone: null,
+      //   age: null,
+      //   course: null,
+      //   courseFormat: null,
+      //   courseType: null,
+      //   status: null,
+      //   group: null,
+      // });
       return { token };
     }
     throw new ApiError('Email or password is not correct', 401);
@@ -84,29 +83,27 @@ export class AuthService {
   ): Promise<string> {
     try {
       const user = await this.userService.getUserById(userId);
-      const payload: JWTPayload = {
+      const userJwtPayload: JWTPayload = {
         id: user.id.toString(),
         userName: user.name,
         role: user.role,
       };
-      let secret: string;
+      let secretKey: string;
 
       switch (tokenType) {
         case EActionTokenTypes.Activate:
-          secret = process.env.JWT_ACTIVATE_SECRET;
+          secretKey = process.env.JWT_ACTIVATE_SECRET;
           break;
         case EActionTokenTypes.Recovery:
-          secret = process.env.JWT_RECOVERY_SECRET;
+          secretKey = process.env.JWT_RECOVERY_SECRET;
           break;
       }
-      console.log(secret);
-      const activationToken = this.jwtService.sign(payload, {
-        secret,
-        expiresIn: '30m',
+      console.log(secretKey);
+      const activationToken = await this.signIn({
+        payload: userJwtPayload,
+        options: { secret: secretKey, expiresIn: '30m' },
       });
       const activationUrl = `${process.env.BASE_URL}/activate/${activationToken}`;
-      console.log(process.env.EMAIL_USER);
-      console.log(process.env.EMAIL_PASSWORD);
       console.log(activationUrl);
       copyPaste.copy(activationUrl, () => {
         console.log('Copied to clipboard:', activationUrl);
@@ -142,23 +139,10 @@ export class AuthService {
 
   async verify(
     token: string,
-    tokenType: EActionTokenTypes,
   ): Promise<JWTPayload> {
-    let secret: string;
-
-    switch (tokenType) {
-      case EActionTokenTypes.Activate:
-        secret = process.env.JWT_ACTIVATE_SECRET;
-        break;
-      case EActionTokenTypes.Recovery:
-        secret = process.env.JWT_RECOVERY_SECRET;
-        break;
-    }
-
     try {
-      return await this.jwtService.verifyAsync(token, { secret });
-      // const jwtData = await this.jwtService.verifyAsync(token);
-      // return jwtData.payload;
+      const jwtData = await this.jwtService.verifyAsync(token);
+      return jwtData.payload;
     } catch (e) {
       throw new ApiError('Token is not valid', 401);
     }

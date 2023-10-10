@@ -10,6 +10,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Orders, User } from '@prisma/client';
 import { InjectRedisClient, RedisClient } from '@webeleon/nestjs-redis';
@@ -28,7 +29,6 @@ import { AuthService } from './auth.service';
 import { EActionTokenTypes } from './models_dtos/enums';
 import { JWTPayload } from './models_dtos/interface';
 import { ActivateUserDto, UserLoginDto } from './models_dtos/request';
-import { JwtService } from "@nestjs/jwt";
 
 function LogoutGuard() {}
 
@@ -39,6 +39,7 @@ export class AuthController {
     private authService: AuthService,
     private userService: UserService,
     private jwtService: JwtService,
+    private prisma: PrismaService,
     @InjectRedisClient() private redisClient: RedisClient,
   ) {}
   @Post('login')
@@ -62,30 +63,25 @@ export class AuthController {
     @Param('activationToken') activationToken: string,
     @Body() body: ActivateUserDto,
   ): Promise<void> {
-    // const secret = process.env.JWT_ACTIVATE_SECRET;
-    // const type = EActionTokenTypes.Activate;
-    // const jwtPayload = await this.authService.verify(activationToken, type);
-    const jwtPayload = await this.jwtService.verify(activationToken, {
-      secret: 'jwtactivatesecret',
-    });
-    console.log(jwtPayload);
+    const jwtPayload = await this.authService.verify(activationToken);
     const { id } = jwtPayload;
-    console.log(id);
     try {
       await this.userService.getUserById(id);
     } catch (err) {
       throw new ApiError(err.body, err.status);
     }
-    await this.userService.activateUserByUser(id, body);
+    return res
+      .status(HttpStatus.OK)
+      .json(await this.userService.activateUserByUser(id, body));
   }
 
   @ApiBearerAuth()
   @Roles('admin')
   @UseGuards(BearerAuthGuard, RoleGuard)
-  @Post('activate/:id')
-  async activateUserByAdmin(@Param('id') id: string): Promise<void> {
+  @Post('activate/:userId')
+  async activateUserByAdmin(@Param('userId') userId: string): Promise<void> {
     await this.authService.generateActivationTokenUrl(
-      id,
+      userId,
       EActionTokenTypes.Activate,
     );
   }
