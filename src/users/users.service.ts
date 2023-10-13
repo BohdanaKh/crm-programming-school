@@ -22,53 +22,6 @@ export class UserService {
   async getAllUsers(
     query: PublicUserInfoDto,
   ): Promise<PaginatedDto<UserResponseDto>> {
-    // const { sort, order } = query;
-    // const sortingOptions = {
-    //   id: {
-    //     orderBy: {
-    //       id: order,
-    //     },
-    //   },
-    //   email: {
-    //     orderBy: {
-    //       email: order,
-    //     },
-    //   },
-    //   name: {
-    //     orderBy: {
-    //       name: order,
-    //     },
-    //   },
-    //   surname: {
-    //     orderBy: {
-    //       surname: order,
-    //     },
-    //   },
-    //   isActive: {
-    //     orderBy: {
-    //       isActive: order,
-    //     },
-    //   },
-    //   lastLogin: {
-    //     orderBy: {
-    //       lastLogin: order,
-    //     },
-    //   },
-    //   created_at: {
-    //     orderBy: {
-    //       created_at: order,
-    //     },
-    //   },
-    //   created_at_desc: {
-    //     orderBy: {
-    //       created_at: 'DESC',
-    //     },
-    //   },
-    // };
-    // const orderBy =
-    //   sortingOptions[sort]['orderBy'] ||
-    //   sortingOptions.created_at_desc['orderBy'];
-
     const limit = 10;
     const page = +query.page || 1;
     const skip = (page - 1) * limit;
@@ -134,28 +87,28 @@ export class UserService {
     });
   }
 
-  async banUser(userId: number): Promise<void> {
+  async banUser(userId: string): Promise<void> {
     await this.prisma.user.update({
-      where: { id: userId },
+      where: { id: +userId },
       data: { is_banned: true },
     });
   }
 
-  async unbanUser(userId: number): Promise<void> {
+  async unbanUser(userId: string): Promise<void> {
     await this.prisma.user.update({
-      where: { id: userId },
+      where: { id: +userId },
       data: { is_banned: false },
     });
   }
 
   async getUserById(userId: string): Promise<User | null> {
-    const user = await this.prisma.user.findUnique({
+    const result = await this.prisma.user.findUnique({
       where: { id: +userId },
     });
-    if (!user) {
-      throw new NotFoundException(`User with ID ${userId} not found`);
+    if (!result) {
+      throw new NotFoundException(`User with ID ${userId} is not found`);
     }
-    return user;
+    return result;
   }
 
   async update(userId: string, data: UserUpdateRequestDto): Promise<User> {
@@ -177,7 +130,7 @@ export class UserService {
     });
   }
 
-  async hashPassword(password: string) {
+  async hashPassword(password: string): Promise<string> {
     return bcrypt.hash(password, this.salt);
   }
 }

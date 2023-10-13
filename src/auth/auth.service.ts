@@ -15,6 +15,8 @@ import { UserService } from '../users/users.service';
 import { EActionTokenTypes } from './models_dtos/enums';
 import { JWTPayload } from './models_dtos/interface';
 import { UserLoginDto } from './models_dtos/request';
+import { UserMapper } from "../users/users.mapper";
+import { LoginResponseDto } from "./models_dtos/response";
 
 @Injectable()
 export class AuthService {
@@ -27,7 +29,7 @@ export class AuthService {
     @InjectRedisClient() private redisClient: RedisClient,
   ) {}
 
-  async login(loginUser: UserLoginDto) {
+  async login(loginUser: UserLoginDto): Promise<LoginResponseDto> {
     const findUser = await this.userService.findUserByEmail(loginUser.email);
     if (!findUser) {
       throw new ApiError('Email or password is not correct', 401);
@@ -72,7 +74,7 @@ export class AuthService {
       //   status: null,
       //   group: null,
       // });
-      return { token };
+      return { token, user: UserMapper.toResponseDto(findUser) };
     }
     throw new ApiError('Email or password is not correct', 401);
   }

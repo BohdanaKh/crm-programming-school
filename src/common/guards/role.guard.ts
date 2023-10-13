@@ -25,13 +25,10 @@ export class RoleGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     if (request.headers && request.headers.authorization) {
       const token = request.headers.authorization?.split(' ')[1];
-      console.log(token);
 
       const user = await this.jwtService.verify(token, {
         secret: process.env.JWT_SECRET_KEY,
       });
-      console.log('User role');
-      console.log(user);
       return this.matchRoles(roles, user.role);
     }
     return false;

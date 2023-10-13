@@ -4,14 +4,20 @@ import { Orders, Prisma } from '@prisma/client';
 import { PrismaService } from '../common/orm/prisma.service';
 import { PaginatedDto } from '../common/pagination/response';
 import { PublicOrderInfoDto } from '../common/query/order.query.dto';
+import { UserService } from '../users/users.service';
+import { OrderUpdateRequestDto } from './models-dtos/order.update.request.dto';
+import { connect } from "rxjs";
 
 @Injectable()
 export class OrdersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private userService: UserService,
+  ) {}
   async findAllWithPagination(
     query: PublicOrderInfoDto,
   ): Promise<PaginatedDto<Orders>> {
-    const { sort, order } = query;
+    const { sort: sortBy } = query;
     // const sortingOptions = {
     //   id: {
     //     orderBy: {
@@ -84,52 +90,62 @@ export class OrdersService {
     //     },
     //   },
     // };
-    const sortingOptions = {
-      id: {
-        id: order,
-      },
-      name: {
-        name: order,
-      },
-      surname: {
-        surname: order,
-      },
-      email: {
-        email: order,
-      },
-      phone: {
-        phone: order,
-      },
-      age: {
-        age: order,
-      },
-      course: {
-        course: order,
-      },
-      course_format: {
-        course_format: order,
-      },
-      course_type: {
-        course_type: order,
-      },
-      status: {
-        status: order,
-      },
-      sum: {
-        sum: order,
-      },
-      alreadyPaid: {
-        alreadyPaid: order,
-      },
-      created_at: {
-        created_at: order,
-      },
-      created_at_desc: {
-        created_at: 'desc',
-      },
-    };
-    const orderBy = sortingOptions[sort] || sortingOptions.created_at_desc;
+    // const sortingOptions = {
+    //   id: {
+    //     id: order,
+    //   },
+    //   name: {
+    //     name: order,
+    //   },
+    //   surname: {
+    //     surname: order,
+    //   },
+    //   email: {
+    //     email: order,
+    //   },
+    //   phone: {
+    //     phone: order,
+    //   },
+    //   age: {
+    //     age: order,
+    //   },
+    //   course: {
+    //     course: order,
+    //   },
+    //   course_format: {
+    //     course_format: order,
+    //   },
+    //   course_type: {
+    //     course_type: order,
+    //   },
+    //   status: {
+    //     status: order,
+    //   },
+    //   sum: {
+    //     sum: order,
+    //   },
+    //   alreadyPaid: {
+    //     alreadyPaid: order,
+    //   },
+    //   created_at: {
+    //     created_at: order,
+    //   },
+    //   created_at_desc: {
+    //     created_at: 'desc',
+    //   },
+    // };
+    let sortOption: object;
+    if (sortBy && sortBy.startsWith('-')) {
+      sortOption = {
+        [sortBy.slice(1)]: 'desc',
+      };
+    } else {
+      sortOption = {
+        [sortBy]: 'asc',
+      };
+    }
 
+    // const orderBy = sortingOptions[sort] || sortingOptions.created_at_desc;
 
     const limit = 25;
     const page = +query.page || 1;
@@ -138,7 +154,7 @@ export class OrdersService {
     const entities = await this.prisma.orders.findMany({
       take: limit,
       skip: skip,
-      orderBy,
+      orderBy: sortBy ? sortOption : { created_at: 'desc' },
       where: {
         name: query.name,
         surname: query.surname,
@@ -161,34 +177,39 @@ export class OrdersService {
     };
   }
 
-  async findOne(id: number): Promise<Orders> {
+  async findOne(orderId: string): Promise<Orders> {
     const order = await this.prisma.orders.findUnique({
-      where: { id },
+      where: { id: +orderId },
     });
 
     if (!order) {
-      throw new NotFoundException(`Order with ID ${id} not found`);
+      throw new NotFoundException(`Order with ID ${orderId} is not found`);
     }
 
     return order;
   }
 
-  async update(id: number, data: Prisma.OrdersUpdateInput): Promise<Orders> {
+  async update(
+    userId: string,
+    orderId: string,
+    // data: OrderUpdateRequestDto,
+  ): Promise<Orders> {
+    const user = await this.userService.getUserById(userId);
     try {
       return await this.prisma.orders.update({
-        where: { id },
-        data,
+        where: {
+          id: +orderId,
+        },
+        data: { managerId: user.id },
       });
     } catch (error) {
-      throw new Error(`Order update failed for ID ${id}`);
+      throw new Error(`Order update failed for ID ${orderId}`);
     }
   }
 
-  async remove(id: number): Promise<Orders> {
-    // const order = await this.findOne(id);
-
+  async remove(id: number): Promise<void> {
     try {
-      return await this.prisma.orders.delete({
+      await this.prisma.orders.delete({
         where: { id },
       });
     } catch (error) {

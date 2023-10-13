@@ -29,6 +29,7 @@ import { AuthService } from './auth.service';
 import { EActionTokenTypes } from './models_dtos/enums';
 import { JWTPayload } from './models_dtos/interface';
 import { ActivateUserDto, UserLoginDto } from './models_dtos/request';
+import { LoginResponseDto } from "./models_dtos/response";
 
 function LogoutGuard() {}
 
@@ -43,7 +44,7 @@ export class AuthController {
     @InjectRedisClient() private redisClient: RedisClient,
   ) {}
   @Post('login')
-  async login(@Body() loginUser: UserLoginDto) {
+  async login(@Body() loginUser: UserLoginDto): Promise<LoginResponseDto> {
     if (!loginUser.email && !loginUser.password) {
       throw new ApiError('Error.Check_request_params', 403);
     }

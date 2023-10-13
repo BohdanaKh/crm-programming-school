@@ -3,19 +3,23 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Orders, Prisma } from '@prisma/client';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Orders } from '@prisma/client';
 
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { IUserData } from '../common/models/interfaces';
+import { PaginatedDto } from '../common/pagination/response';
 import { PublicOrderInfoDto } from '../common/query/order.query.dto';
-// import { Order } from '@prisma/client';
+import { OrderUpdateRequestDto } from './models-dtos/order.update.request.dto';
 import { OrdersService } from './orders.service';
-import { PaginatedDto } from "../common/pagination/response";
 
 // @ApiBearerAuth()
 // @UseGuards(AuthGuard())
@@ -27,25 +31,40 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Get()
-  async findAll(@Query() query: PublicOrderInfoDto): Promise<PaginatedDto<Orders>> {
+  async findAll(
+    @Query() query: PublicOrderInfoDto,
+  ): Promise<PaginatedDto<Orders>> {
     return this.ordersService.findAllWithPagination(query);
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string): Promise<Orders> {
-    return this.ordersService.findOne(+id);
+  @Get(':orderId')
+  async findOne(@Param('orderId') orderId: string): Promise<Orders> {
+    return this.ordersService.findOne(orderId);
   }
 
-  @Put(':id')
+  @ApiOperation({
+    description: 'Updating an order',
+  })
+  // @HttpCode(HttpStatus.NO_CONTENT)
+  @Put(':orderId')
   async update(
-    @Param('id') id: string,
-    @Body() updateOrderDto: Prisma.OrdersUpdateInput,
+    @CurrentUser() user: IUserData,
+    @Param('orderId') orderId: string,
+    // @Body() updateOrderDto: OrderUpdateRequestDto,
   ): Promise<Orders> {
-    return this.ordersService.update(+id, updateOrderDto);
+    return await this.ordersService.update(
+      user.userId,
+      orderId,
+      // updateOrderDto,
+    );
   }
 
+  @ApiOperation({
+    description: 'Deleting an order',
+  })
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
-  async remove(@Param('id') id: string): Promise<Orders> {
-    return this.ordersService.remove(+id);
+  async remove(@Param('id') id: string): Promise<void> {
+    await this.ordersService.remove(+id);
   }
 }
