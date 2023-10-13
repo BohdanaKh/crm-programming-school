@@ -80,4 +80,9 @@ export class OrderUpdateRequestDto {
   @IsString()
   @IsOptional()
   msg: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  manager: string;
 }

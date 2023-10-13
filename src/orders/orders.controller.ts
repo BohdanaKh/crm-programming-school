@@ -15,11 +15,14 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Orders } from '@prisma/client';
 
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
+import { RoleGuard } from '../common/guards/role.guard';
 import { IUserData } from '../common/models/interfaces';
 import { PaginatedDto } from '../common/pagination/response';
 import { PublicOrderInfoDto } from '../common/query/order.query.dto';
 import { OrderUpdateRequestDto } from './models-dtos/order.update.request.dto';
 import { OrdersService } from './orders.service';
+import { JWTPayload } from '../auth/models_dtos/interface';
 
 // @ApiBearerAuth()
 // @UseGuards(AuthGuard())
@@ -29,6 +32,7 @@ import { OrdersService } from './orders.service';
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
+
 
   @Get()
   async findAll(
@@ -46,16 +50,18 @@ export class OrdersController {
     description: 'Updating an order',
   })
   // @HttpCode(HttpStatus.NO_CONTENT)
+  @Roles('admin')
+  @UseGuards(AuthGuard(), RoleGuard)
   @Put(':orderId')
   async update(
-    @CurrentUser() user: IUserData,
+    @CurrentUser() user: JWTPayload,
     @Param('orderId') orderId: string,
-    // @Body() updateOrderDto: OrderUpdateRequestDto,
+    @Body() updateOrderDto: OrderUpdateRequestDto,
   ): Promise<Orders> {
     return await this.ordersService.update(
-      user.userId,
+      user.id,
       orderId,
-      // updateOrderDto,
+      updateOrderDto,
     );
   }
 

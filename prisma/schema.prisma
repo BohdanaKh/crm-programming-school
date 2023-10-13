@@ -23,7 +23,8 @@ model Orders {
   created_at    DateTime?     @db.DateTime(6)
   utm           String?       @db.VarChar(100)
   msg           String?       @db.VarChar(100)
-  manager       User?         @relation(fields: [managerId], references: [id])
+  manager       String?       @db.VarChar(100)
+  user          User?         @relation(fields: [managerId], references: [id])
   status        Status?
   managerId     Int?
 }

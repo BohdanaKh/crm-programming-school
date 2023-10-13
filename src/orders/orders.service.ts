@@ -1,12 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Orders, Prisma } from '@prisma/client';
+import { Orders } from '@prisma/client';
 
 import { PrismaService } from '../common/orm/prisma.service';
 import { PaginatedDto } from '../common/pagination/response';
 import { PublicOrderInfoDto } from '../common/query/order.query.dto';
 import { UserService } from '../users/users.service';
 import { OrderUpdateRequestDto } from './models-dtos/order.update.request.dto';
-import { connect } from "rxjs";
 
 @Injectable()
 export class OrdersService {
@@ -17,123 +16,20 @@ export class OrdersService {
   async findAllWithPagination(
     query: PublicOrderInfoDto,
   ): Promise<PaginatedDto<Orders>> {
-    const { sort: sortBy } = query;
-    // const sortingOptions = {
-    //   id: {
-    //     orderBy: {
-    //       id: order,
-    //     },
-    //   },
-    //   name: {
-    //     orderBy: {
-    //       name: order,
-    //     },
-    //   },
-    //   surname: {
-    //     orderBy: {
-    //       surname: order,
-    //     },
-    //   },
-    //   email: {
-    //     orderBy: {
-    //       email: order,
-    //     },
-    //   },
-    //   phone: {
-    //     orderBy: {
-    //       phone: order,
-    //     },
-    //   },
-    //   age: {
-    //     orderBy: {
-    //       age: order,
-    //     },
-    //   },
-    //   course: {
-    //     orderBy: {
-    //       course: order,
-    //     },
-    //   },
-    //   course_format: {
-    //     orderBy: {
-    //       course_format: order,
-    //     },
-    //   },
-    //   course_type: {
-    //     orderBy: {
-    //       course_type: order,
-    //     },
-    //   },
-    //   status: {
-    //     orderBy: {
-    //       status: order,
-    //     },
-    //   },
-    //   sum: {
-    //     orderBy: {
-    //       sum: order,
-    //     },
-    //   },
-    //   alreadyPaid: {
-    //     orderBy: {
-    //       alreadyPaid: order,
-    //     },
-    //   },
-    //   created_at: {
-    //     orderBy: {
-    //       created_at: order,
-    //     },
-    //   },
-    //   created_at_desc: {
-    //     orderBy: {
-    //       created_at: 'desc',
-    //     },
-    //   },
-    // };
-    // const sortingOptions = {
-    //   id: {
-    //     id: order,
-    //   },
-    //   name: {
-    //     name: order,
-    //   },
-    //   surname: {
-    //     surname: order,
-    //   },
-    //   email: {
-    //     email: order,
-    //   },
-    //   phone: {
-    //     phone: order,
-    //   },
-    //   age: {
-    //     age: order,
-    //   },
-    //   course: {
-    //     course: order,
-    //   },
-    //   course_format: {
-    //     course_format: order,
-    //   },
-    //   course_type: {
-    //     course_type: order,
-    //   },
-    //   status: {
-    //     status: order,
-    //   },
-    //   sum: {
-    //     sum: order,
-    //   },
-    //   alreadyPaid: {
-    //     alreadyPaid: order,
-    //   },
-    //   created_at: {
-    //     created_at: order,
-    //   },
-    //   created_at_desc: {
-    //     created_at: 'desc',
-    //   },
-    // };
+    const {
+      sort: sortBy,
+      name,
+      surname,
+      email,
+      phone,
+      age,
+      course,
+      course_type,
+      course_format,
+      status,
+      group,
+    } = query;
+
     let sortOption: object;
     if (sortBy && sortBy.startsWith('-')) {
       sortOption = {
@@ -156,16 +52,34 @@ export class OrdersService {
       skip: skip,
       orderBy: sortBy ? sortOption : { created_at: 'desc' },
       where: {
-        name: query.name,
-        surname: query.surname,
-        email: query.email,
-        phone: query.phone,
-        age: query.age,
-        course: query.course,
-        course_format: query.courseFormat,
-        course_type: query.courseType,
-        status: query.status,
-        group: query.group,
+        AND: [
+          {
+            name: {
+              contains: name || undefined,
+            },
+          },
+          {
+            surname: {
+              contains: surname || undefined,
+            },
+          },
+          {
+            email: {
+              contains: email || undefined,
+            },
+          },
+          {
+            phone: {
+              contains: phone || undefined,
+            },
+          },
+          age ? { age } : undefined,
+          course ? { course } : undefined,
+          course_format ? { course_format } : undefined,
+          course_type ? { course_type } : undefined,
+          status ? { status } : undefined,
+          group ? { group } : undefined,
+        ].filter(Boolean),
       },
     });
 
@@ -192,7 +106,7 @@ export class OrdersService {
   async update(
     userId: string,
     orderId: string,
-    // data: OrderUpdateRequestDto,
+    data: OrderUpdateRequestDto,
   ): Promise<Orders> {
     const user = await this.userService.getUserById(userId);
     try {
@@ -200,7 +114,7 @@ export class OrdersService {
         where: {
           id: +orderId,
         },
-        data: { managerId: user.id },
+        data: { ...data, managerId: user.id, manager: user.surname },
       });
     } catch (error) {
       throw new Error(`Order update failed for ID ${orderId}`);

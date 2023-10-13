@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Course, CourseFormat, CourseType, Status } from '@prisma/client';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class PublicOrderInfoDto {
   @ApiProperty()
@@ -88,7 +88,7 @@ export class PublicOrderInfoDto {
   phone: string;
 
   @ApiProperty()
-  @IsString()
+  @IsNumber()
   @IsOptional()
   age: number;
 
@@ -102,12 +102,12 @@ export class PublicOrderInfoDto {
   @IsString()
   @IsOptional()
   @IsEnum(['static', 'online'])
-  courseFormat: CourseFormat;
+  course_format: CourseFormat;
 
   @ApiProperty()
   @IsString()
   @IsOptional()
-  courseType: CourseType;
+  course_type: CourseType;
 
   @ApiProperty()
   @IsString()

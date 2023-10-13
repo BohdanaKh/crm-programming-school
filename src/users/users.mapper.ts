@@ -18,7 +18,6 @@ export class UserMapper {
   public static toUserData(user: User): IUserData {
     return {
       userId: user.id.toString(),
-      email: user.email,
     };
   }
 }
