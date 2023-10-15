@@ -14,6 +14,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Orders } from '@prisma/client';
 
+import { JWTPayload } from '../auth/models_dtos/interface';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { RoleGuard } from '../common/guards/role.guard';
@@ -22,7 +23,6 @@ import { PaginatedDto } from '../common/pagination/response';
 import { PublicOrderInfoDto } from '../common/query/order.query.dto';
 import { OrderUpdateRequestDto } from './models-dtos/order.update.request.dto';
 import { OrdersService } from './orders.service';
-import { JWTPayload } from '../auth/models_dtos/interface';
 
 // @ApiBearerAuth()
 // @UseGuards(AuthGuard())
@@ -33,7 +33,6 @@ import { JWTPayload } from '../auth/models_dtos/interface';
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
-
   @Get()
   async findAll(
     @Query() query: PublicOrderInfoDto,
@@ -41,16 +40,23 @@ export class OrdersController {
     return this.ordersService.findAllWithPagination(query);
   }
 
+  // @Get(':orderId')
+  // async findOne(@Param('orderId') orderId: string): Promise<Orders> {
+  //   return await this.ordersService.findOne(orderId);
+  // }
+
   @Get(':orderId')
-  async findOne(@Param('orderId') orderId: string): Promise<Orders> {
-    return this.ordersService.findOne(orderId);
+  async getOrderWithComments(
+    @Param('orderId') orderId: string,
+  ): Promise<Orders> {
+    return await this.ordersService.getOrderWithComments(orderId);
   }
 
   @ApiOperation({
     description: 'Updating an order',
   })
   // @HttpCode(HttpStatus.NO_CONTENT)
-  @Roles('admin')
+  @Roles('admin', 'manager')
   @UseGuards(AuthGuard(), RoleGuard)
   @Put(':orderId')
   async update(
@@ -58,11 +64,7 @@ export class OrdersController {
     @Param('orderId') orderId: string,
     @Body() updateOrderDto: OrderUpdateRequestDto,
   ): Promise<Orders> {
-    return await this.ordersService.update(
-      user.id,
-      orderId,
-      updateOrderDto,
-    );
+    return await this.ordersService.update(user, orderId, updateOrderDto);
   }
 
   @ApiOperation({

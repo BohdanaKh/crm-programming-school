@@ -15,6 +15,7 @@ import { PrismaService } from './common/orm/prisma.service';
 import { OrdersModule } from './orders/orders.module';
 import { UserModule } from './users/users.module';
 import { CommentsModule } from './comments/comments.module';
+import { GroupsModule } from './groups/groups.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { CommentsModule } from './comments/comments.module';
     PassportWrapperModule,
     AdminModule,
     CommentsModule,
+    GroupsModule,
   ],
   controllers: [AppController],
   providers: [

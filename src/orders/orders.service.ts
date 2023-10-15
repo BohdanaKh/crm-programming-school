@@ -1,15 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Orders } from '@prisma/client';
 
+import { JWTPayload } from '../auth/models_dtos/interface';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { ApiError } from '../common/errors/api.error';
 import { PrismaService } from '../common/orm/prisma.service';
 import { PaginatedDto } from '../common/pagination/response';
 import { PublicOrderInfoDto } from '../common/query/order.query.dto';
 import { UserService } from '../users/users.service';
 import { OrderUpdateRequestDto } from './models-dtos/order.update.request.dto';
-import { CurrentUser } from "../common/decorators/current-user.decorator";
-import { JWTPayload } from "../auth/models_dtos/interface";
-import { ApiError } from "../common/errors/api.error";
-import { AllGroups, AllGroupsEnum } from "./groups";
 
 @Injectable()
 export class OrdersService {
@@ -97,17 +96,26 @@ export class OrdersService {
     };
   }
 
-  async findOne(orderId: string): Promise<Orders> {
-    const order = await this.prisma.orders.findUnique({
+  async getOrderWithComments(orderId: string): Promise<Orders> {
+    return this.prisma.orders.findUnique({
       where: { id: +orderId },
+      include: {
+        comments: true,
+      },
     });
-
-    if (!order) {
-      throw new NotFoundException(`Order with ID ${orderId} is not found`);
-    }
-
-    return order;
   }
+
+  // async findOne(orderId: string): Promise<Orders> {
+  //   const order = await this.prisma.orders.findUnique({
+  //     where: { id: +orderId },
+  //   });
+  //
+  //   if (!order) {
+  //     throw new NotFoundException(`Order with ID ${orderId} is not found`);
+  //   }
+  //
+  //   return order;
+  // }
 
   async update(
     @CurrentUser() user: JWTPayload,
@@ -115,9 +123,6 @@ export class OrdersService {
     data: OrderUpdateRequestDto,
   ): Promise<Orders> {
     // const findUser = await this.userService.getUserById(user.id);
-    if (!AllGroups.includes(data.group)) {
-      AllGroups.push(data.group);
-    }
     try {
       return await this.prisma.orders.update({
         where: {

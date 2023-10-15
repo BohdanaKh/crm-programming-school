@@ -15,9 +15,9 @@ import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiExtraModels,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+  ApiOperation, ApiResponse,
+  ApiTags
+} from "@nestjs/swagger";
 
 import { Roles } from '../common/decorators/roles.decorator';
 import { BearerAuthGuard } from '../common/guards/bearer-auth.guard';
@@ -43,7 +43,7 @@ import { UserService } from './users.service';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  // @ApiResponse({ status: HttpStatus.CREATED, type: UserCreateRequestDto })
+  @ApiResponse({ status: HttpStatus.CREATED, type: UserCreateRequestDto })
   @Roles('admin')
   @UseGuards(AuthGuard(), RoleGuard)
   @Post('create')

@@ -20,6 +20,7 @@ model Orders {
   sum           Int?
   alreadyPaid   Int?
   group         String?
+  groups        Group?        @relation(fields: [groupId], references: [id])
   created_at    DateTime?     @db.DateTime(6)
   utm           String?       @db.VarChar(100)
   msg           String?       @db.VarChar(100)
@@ -27,6 +28,7 @@ model Orders {
   user          User?         @relation(fields: [managerId], references: [id])
   status        Status?
   managerId     Int?
+  groupId       Int?
   comments      Comment[]
 }
 
@@ -52,6 +54,12 @@ model Comment {
   userId     Int       @unique
   order      Orders?   @relation(fields: [orderId], references: [id])
   orderId    Int       @unique
+}
+
+model Group {
+  id     Int      @id @default(autoincrement())
+  title  String
+  orders Orders[]
 }
 
 enum Role {
