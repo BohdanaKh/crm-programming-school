@@ -6,6 +6,7 @@ import { AuthModule } from '../auth/auth.module';
 import { RoleGuard } from '../common/guards/role.guard';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
+import { PrismaService } from "../common/orm/prisma.service";
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { AdminService } from './admin.service';
   providers: [
     AdminService,
     JwtService,
+    PrismaService,
   ],
   controllers: [AdminController],
 })

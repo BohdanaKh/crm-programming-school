@@ -15,9 +15,10 @@ import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiExtraModels,
-  ApiOperation, ApiResponse,
-  ApiTags
-} from "@nestjs/swagger";
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { Roles } from '../common/decorators/roles.decorator';
 import { BearerAuthGuard } from '../common/guards/bearer-auth.guard';
@@ -30,6 +31,7 @@ import { PublicUserInfoDto } from '../common/query/user.query.dto';
 import { PublicUserData } from './models/interface';
 import { UserCreateRequestDto, UserUpdateRequestDto } from './models/request';
 import { UserResponseDto } from './models/response';
+import { StatusCount, UserStatisticsResponseDto } from "./models/response/user-statistics.response.dto";
 import { UserMapper } from './users.mapper';
 import { UserService } from './users.service';
 
@@ -87,9 +89,8 @@ export class UserController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<UserResponseDto> {
-    const foundUser = await this.userService.getUserById(id);
-    return UserMapper.toResponseDto(foundUser);
+  async findOne(@Param('id') id: string): Promise<UserStatisticsResponseDto<StatusCount>> {
+    return await this.userService.getUserById(id);
     // return res.status(HttpStatus.OK).json({
     //   id: foundUser.id,
     //   name: foundUser.name,

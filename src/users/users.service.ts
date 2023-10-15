@@ -14,6 +14,12 @@ import { PaginatedDto } from '../common/pagination/response';
 import { PublicUserInfoDto } from '../common/query/user.query.dto';
 import { UserCreateRequestDto, UserUpdateRequestDto } from './models/request';
 import { UserResponseDto } from './models/response';
+import { UserMapper } from "./users.mapper";
+import { StatusCount, UserStatisticsResponseDto } from "./models/response/user-statistics.response.dto";
+import {
+  IOrdersStatusCount,
+  OrdersStatusCountInterface
+} from "../common/models/interfaces/orders-status.count.interface";
 
 @Injectable()
 export class UserService {
@@ -100,14 +106,27 @@ export class UserService {
     });
   }
 
-  async getUserById(userId: string): Promise<User | null> {
+  async getUserById(
+    userId: string,
+  ): Promise<UserStatisticsResponseDto<StatusCount> | null> {
     const result = await this.prisma.user.findUnique({
       where: { id: +userId },
     });
     if (!result) {
       throw new NotFoundException(`User with ID ${userId} is not found`);
     }
-    return result;
+    const totalOrdersCount = await this.prisma.orders.count({
+      where: {
+        managerId: +userId,
+      },
+    });
+    const statusCounts = await this.prisma.orders.groupBy({
+      where: { managerId: +userId },
+      by: ['status'],
+      _count: true,
+    });
+    const user = UserMapper.toResponseDto(result);
+    return { user, totalOrdersCount, statusCounts };
   }
 
   async update(userId: string, data: UserUpdateRequestDto): Promise<User> {

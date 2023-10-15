@@ -124,11 +124,40 @@ export class OrdersService {
   ): Promise<Orders> {
     // const findUser = await this.userService.getUserById(user.id);
     try {
+      let groupName: string;
+      let newGroupId: number;
+      if (data.groupId) {
+        const existingGroup = await this.prisma.group.findUnique({
+          where: { id: +data.groupId },
+        });
+        groupName = existingGroup.title;
+      } else if (data.group) {
+        const foundGroup = await this.prisma.group.findFirst({
+          where: {
+            title: data.group,
+          },
+        });
+        if (foundGroup) {
+          newGroupId = foundGroup.id;
+        } else {
+          const newGroup = await this.prisma.group.create({
+            data: { title: data.group },
+          });
+          newGroupId = newGroup.id;
+        }
+      } else if (data.group === null) {
+        newGroupId = null;
+        groupName = null;
+      }
       return await this.prisma.orders.update({
         where: {
           id: +orderId,
         },
-        data,
+        data: {
+          ...data,
+          groupId: +data.groupId || newGroupId,
+          group: data.group || groupName,
+        },
       });
     } catch (error) {
       throw new ApiError(`Order update failed for ID ${orderId}`, error.status);

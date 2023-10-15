@@ -12,6 +12,11 @@ export class OrderUpdateRequestDto {
   @ApiProperty()
   @IsString()
   @IsOptional()
+  groupId: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
   group: string;
 
   @ApiProperty()

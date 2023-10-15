@@ -13,7 +13,7 @@ export class GroupsService {
   async create(title: string): Promise<Group> {
     return this.prisma.group.create({
       data: {
-        title: title,
+        title,
       },
     });
   }
