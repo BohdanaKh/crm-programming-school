@@ -6,6 +6,10 @@ import { PaginatedDto } from '../common/pagination/response';
 import { PublicOrderInfoDto } from '../common/query/order.query.dto';
 import { UserService } from '../users/users.service';
 import { OrderUpdateRequestDto } from './models-dtos/order.update.request.dto';
+import { CurrentUser } from "../common/decorators/current-user.decorator";
+import { JWTPayload } from "../auth/models_dtos/interface";
+import { ApiError } from "../common/errors/api.error";
+import { AllGroups, AllGroupsEnum } from "./groups";
 
 @Injectable()
 export class OrdersService {
@@ -28,6 +32,7 @@ export class OrdersService {
       course_format,
       status,
       group,
+      manager,
     } = query;
 
     let sortOption: object;
@@ -79,6 +84,7 @@ export class OrdersService {
           course_type ? { course_type } : undefined,
           status ? { status } : undefined,
           group ? { group } : undefined,
+          manager ? { manager } : undefined,
         ].filter(Boolean),
       },
     });
@@ -104,20 +110,23 @@ export class OrdersService {
   }
 
   async update(
-    userId: string,
+    @CurrentUser() user: JWTPayload,
     orderId: string,
     data: OrderUpdateRequestDto,
   ): Promise<Orders> {
-    const user = await this.userService.getUserById(userId);
+    // const findUser = await this.userService.getUserById(user.id);
+    if (!AllGroups.includes(data.group)) {
+      AllGroups.push(data.group);
+    }
     try {
       return await this.prisma.orders.update({
         where: {
           id: +orderId,
         },
-        data: { ...data, managerId: user.id, manager: user.surname },
+        data,
       });
     } catch (error) {
-      throw new Error(`Order update failed for ID ${orderId}`);
+      throw new ApiError(`Order update failed for ID ${orderId}`, error.status);
     }
   }
 
@@ -127,7 +136,7 @@ export class OrdersService {
         where: { id },
       });
     } catch (error) {
-      throw new Error(`Order deletion failed for ID ${id}`);
+      throw new ApiError(`Order deletion failed for ID ${id}`, error.status);
     }
   }
 }

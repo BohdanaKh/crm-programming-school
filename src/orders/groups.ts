@@ -1,1 +1,3 @@
-export enum AllGroupsEnum {}
+export const AllGroups  = [
+
+]

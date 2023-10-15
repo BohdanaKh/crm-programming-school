@@ -21,7 +21,7 @@ export class CommentsController {
     @Body('comment') comment: string,
   ): Promise<Comment> {
     console.log(user);
-    return await this.commentsService.createComment(user.id, orderId, comment);
+    return await this.commentsService.createComment(user, orderId, comment);
   }
 
   @Get(':orderId')

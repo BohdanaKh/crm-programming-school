@@ -8,11 +8,9 @@ import {
   IsString,
 } from 'class-validator';
 
-import { AllGroupsEnum } from '../groups';
-
 export class OrderUpdateRequestDto {
   @ApiProperty()
-  @IsEnum(AllGroupsEnum)
+  @IsString()
   @IsOptional()
   group: string;
 

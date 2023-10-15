@@ -119,4 +119,9 @@ export class PublicOrderInfoDto {
   @IsString()
   @IsOptional()
   group: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  manager: string;
 }
