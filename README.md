@@ -6,6 +6,7 @@ Starter template for [NestJS](https://nestjs.com/) and [Prisma](https://www.pris
 ## Features
 
 - [Prisma](https://www.prisma.io/) for database modelling, migration and type-safe access (Postgres, MySQL & MongoDB)
+- A redis client for NestJS w/ [Redis](https://redis.io/)
 - 🔐 JWT authentication w/ [passport-jwt](https://github.com/mikenicholson/passport-jwt)
 - REST API docs w/ [Swagger](https://swagger.io/)
 
@@ -14,6 +15,12 @@ Starter template for [NestJS](https://nestjs.com/) and [Prisma](https://www.pris
 - [Instructions](#instructions)
     - [Features](#features)
     - [Overview](#overview)
+    - [Starting](#starting)
+        - [1. Pre-requisites](#1-pre-requisites)
+        - [2. Getting started](#2-getting-started)
+    - [Redis Setup](#redis-setup)
+        - [1. Install Redis server](#1-install-redis-server)
+        - [2. Restart the Redis server](#2-restart-the-redis-server)
     - [Prisma Setup](#prisma-setup)
         - [1. Install Dependencies](#1-install-dependencies)
         - [2. Prisma: Prisma Migrate](#3-prisma-prisma-migrate)
@@ -22,27 +29,51 @@ Starter template for [NestJS](https://nestjs.com/) and [Prisma](https://www.pris
     - [Rest Api](#rest-api)
     - [Schema Development](#schema-development)
 
+## Starting
+
+### 1. Pre-requisites
+- Install [Node.js](https://nodejs.org/en/) version 18.15.0
+
+### 2. Getting started
+- Clone the repository
+```
+git clone  https://github.com/BohdanaKh/crm-programming-school.git
+```
+
+
+## Redis Setup
+
+### 1. Install Redis server
+The following example works with Ubuntu
+```bash
+ sudo apt-add-repository ppa:redislabs/redis
+ sudo apt-get update
+ sudo apt-get upgrade
+ sudo apt-get install redis-server
+ ```
+
+### 2. Restart the Redis server
+
+```bash
+ sudo service redis-server restart
+ ```
+
 ## Prisma Setup
 
 ### 1. Install Dependencies
 
-Install [Nestjs CLI](https://docs.nestjs.com/cli/usages) to start and [generate CRUD resources](https://trilon.io/blog/introducing-cli-generators-crud-api-in-1-minute)
-
-```bash
-# npm
-npm i -g @nestjs/cli
-# yarn
-yarn add -g @nestjs/cli
-```
-
 Install the dependencies for the Nest application:
 
 ```bash
+cd crm-programming-school
 # npm
 npm install
 # yarn
 yarn install
 ```
+
+Copy [.env.example](./.env.example) and rename to `.env` - `cp .env.example .env` - which sets the required environments for MySQL such as USER, PASSWORD and DATABASE. Update the variables as you wish and select a strong password.
+
 
 Using .hbs which is staying inside src/templates/[container]/[some-example-template].hbs,
 
@@ -59,7 +90,7 @@ modify nest-cli.json file as given below:
 
 ### 2. Prisma Migrate
 
-[Prisma Migrate](https://github.com/prisma/prisma2/tree/master/docs/prisma-migrate) is used to manage the schema and migration of the database. Prisma datasource requires an environment variable `DATABASE_URL` for the connection to the PostgreSQL database. Prisma reads the `DATABASE_URL` from the root [.env](./.env) file.
+[Prisma Migrate](https://github.com/prisma/prisma2/tree/master/docs/prisma-migrate) is used to manage the schema and migration of the database. Prisma datasource requires an environment variable `DATABASE_URL` for the connection to the MySQL database. Prisma reads the `DATABASE_URL` from the root [.env](./.env) file.
 
 Use Prisma Migrate in your [development environment](https://www.prisma.io/blog/prisma-migrate-preview-b5eno5g08d0b#evolving-the-schema-in-development) to
 
@@ -97,6 +128,7 @@ npm run start
 # watch mode
 npm run start:dev
 ```
+Navigate to `http://localhost:3000`
 
 ## Rest Api
 

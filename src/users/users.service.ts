@@ -70,7 +70,6 @@ export class UserService {
         surname: userData.surname,
         is_active: userData.is_active || false,
         last_login: userData.last_login || null,
-        is_banned: userData.is_banned || false,
         role: userData.role || Role.manager,
       },
     });
@@ -90,14 +89,14 @@ export class UserService {
   async banUser(userId: string): Promise<void> {
     await this.prisma.user.update({
       where: { id: +userId },
-      data: { is_banned: true },
+      data: { is_active: false },
     });
   }
 
   async unbanUser(userId: string): Promise<void> {
     await this.prisma.user.update({
       where: { id: +userId },
-      data: { is_banned: false },
+      data: { is_active: true },
     });
   }
 

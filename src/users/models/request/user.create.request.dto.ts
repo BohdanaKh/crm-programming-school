@@ -47,11 +47,6 @@ export class UserCreateRequestDto {
   created_at: Date;
 
   @ApiProperty()
-  @IsBoolean()
-  @IsOptional()
-  is_banned: boolean;
-
-  @ApiProperty()
   @IsEnum(Role)
   @IsOptional()
   role: Role;

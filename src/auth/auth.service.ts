@@ -11,12 +11,12 @@ import { EEmailActions } from '../common/mail/email.enum';
 import { MailService } from '../common/mail/mail.service';
 import { PrismaService } from '../common/orm/prisma.service';
 import { OrdersService } from '../orders/orders.service';
+import { UserMapper } from '../users/users.mapper';
 import { UserService } from '../users/users.service';
 import { EActionTokenTypes } from './models_dtos/enums';
 import { JWTPayload } from './models_dtos/interface';
 import { UserLoginDto } from './models_dtos/request';
-import { UserMapper } from "../users/users.mapper";
-import { LoginResponseDto } from "./models_dtos/response";
+import { LoginResponseDto } from './models_dtos/response';
 
 @Injectable()
 export class AuthService {
@@ -32,9 +32,9 @@ export class AuthService {
   async login(loginUser: UserLoginDto): Promise<LoginResponseDto> {
     const findUser = await this.userService.findUserByEmail(loginUser.email);
     if (!findUser) {
-      throw new ApiError('Email or password is not correct', 401);
+      throw new HttpException('Email or password is not correct', 401);
     }
-    if (findUser.is_banned) {
+    if (!findUser.is_active) {
       throw new HttpException('Access denied', 403);
     }
 
@@ -91,13 +91,19 @@ export class AuthService {
         role: user.role,
       };
       let secretKey: string;
+      let subject: string;
+      let template: string;
 
       switch (tokenType) {
         case EActionTokenTypes.Activate:
           secretKey = process.env.JWT_ACTIVATE_SECRET;
+          subject = 'Activate account';
+          template = EEmailActions.ACTIVATE;
           break;
         case EActionTokenTypes.Recovery:
           secretKey = process.env.JWT_RECOVERY_SECRET;
+          subject = 'Recovery password';
+          template = EEmailActions.RECOVERY_PASSWORD;
           break;
       }
       console.log(secretKey);
@@ -111,15 +117,9 @@ export class AuthService {
         console.log('Copied to clipboard:', activationUrl);
       });
 
-      const subject = 'Activate account';
-      return this.mailService.send(
-        user.email,
-        subject,
-        EEmailActions.ACTIVATE,
-        {
-          activationUrl,
-        },
-      );
+      return this.mailService.send(user.email, subject, template, {
+        activationUrl,
+      });
     } catch (e) {
       throw new ApiError(e.message, e.status);
     }
@@ -139,9 +139,7 @@ export class AuthService {
   //   return null;
   // }
 
-  async verify(
-    token: string,
-  ): Promise<JWTPayload> {
+  async verify(token: string): Promise<JWTPayload> {
     try {
       const jwtData = await this.jwtService.verifyAsync(token);
       return jwtData.payload;

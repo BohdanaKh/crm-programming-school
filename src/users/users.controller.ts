@@ -62,7 +62,6 @@ export class UserController {
     //       surname: newUser.surname,
     //       email: newUser.email,
     //       is_active: newUser.is_active,
-    //       is_banned: newUser.is_banned,
     //       last_login: newUser.last_login,
     //       created_at: newUser.created_at,
     //     })
@@ -97,7 +96,6 @@ export class UserController {
     //   surname: foundUser.surname,
     //   email: foundUser.email,
     //   is_active: foundUser.is_active,
-    //   is_banned: foundUser.is_banned,
     //   last_login: foundUser.last_login,
     //   created_at: foundUser.created_at,
     // });
@@ -118,7 +116,6 @@ export class UserController {
     //   surname: updatedUser.surname,
     //   email: updatedUser.email,
     //   is_active: updatedUser.is_active,
-    //   is_banned: updatedUser.is_banned,
     //   last_login: updatedUser.last_login,
     //   created_at: updatedUser.created_at,
     // });
@@ -131,6 +128,5 @@ export class UserController {
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<void> {
     await this.userService.remove(id);
-    // return res.status(HttpStatus.OK).json('User removed');
   }
 }
