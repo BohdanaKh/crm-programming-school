@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Course, CourseFormat, CourseType, Status } from '@prisma/client';
-import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class PublicOrderInfoDto {
   @ApiProperty()
@@ -50,22 +50,6 @@ export class PublicOrderInfoDto {
   @IsString()
   @IsOptional()
   limit: string;
-
-  // @ApiProperty()
-  // @IsString()
-  // @IsOptional()
-  // @IsEnum([
-  //   'name',
-  //   'surname',
-  //   'email',
-  //   'phone',
-  //   'age',
-  //   'course',
-  //   'course_format',
-  //   'course_type',
-  //   'status',
-  // ])
-  // filter: string;
 
   @ApiProperty()
   @IsString()

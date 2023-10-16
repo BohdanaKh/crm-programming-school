@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, Matches } from 'class-validator';
 
-import { Match } from '../../../common/decorators/password-match.decorator';
+import { Match } from '../../../common/decorators';
 
 export class ActivateUserDto {
   @ApiProperty()

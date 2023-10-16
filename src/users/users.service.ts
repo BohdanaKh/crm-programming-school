@@ -1,6 +1,5 @@
 import {
-  HttpException,
-  HttpStatus,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -10,16 +9,10 @@ import * as process from 'process';
 
 import { ActivateUserDto } from '../auth/models_dtos/request';
 import { PrismaService } from '../common/orm/prisma.service';
-import { PaginatedDto } from '../common/pagination/response';
-import { PublicUserInfoDto } from '../common/query/user.query.dto';
+import { PaginatedDto } from '../common/pagination';
+import { PublicUserInfoDto } from '../common/query';
 import { UserCreateRequestDto, UserUpdateRequestDto } from './models/request';
 import { UserResponseDto } from './models/response';
-import { UserMapper } from "./users.mapper";
-import { StatusCount, UserStatisticsResponseDto } from "./models/response/user-statistics.response.dto";
-import {
-  IOrdersStatusCount,
-  OrdersStatusCountInterface
-} from "../common/models/interfaces/orders-status.count.interface";
 
 @Injectable()
 export class UserService {
@@ -59,10 +52,10 @@ export class UserService {
       where: { email: userData.email.trim() },
     });
     if (findUser) {
-      throw new HttpException(
-        'User with this email already exists',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new ConflictException({
+        message: 'User with this email already exists',
+        statusCode: 409,
+      });
     }
     let hashedPassword: string;
     userData.password
@@ -106,27 +99,14 @@ export class UserService {
     });
   }
 
-  async getUserById(
-    userId: string,
-  ): Promise<UserStatisticsResponseDto<StatusCount> | null> {
-    const result = await this.prisma.user.findUnique({
+  async getUserById(userId: string): Promise<User | null> {
+    const user = await this.prisma.user.findUnique({
       where: { id: +userId },
     });
-    if (!result) {
+    if (!user) {
       throw new NotFoundException(`User with ID ${userId} is not found`);
     }
-    const totalOrdersCount = await this.prisma.orders.count({
-      where: {
-        managerId: +userId,
-      },
-    });
-    const statusCounts = await this.prisma.orders.groupBy({
-      where: { managerId: +userId },
-      by: ['status'],
-      _count: true,
-    });
-    const user = UserMapper.toResponseDto(result);
-    return { user, totalOrdersCount, statusCounts };
+    return user;
   }
 
   async update(userId: string, data: UserUpdateRequestDto): Promise<User> {

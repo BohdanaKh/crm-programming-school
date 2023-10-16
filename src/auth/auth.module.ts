@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { RedisModule } from '@webeleon/nestjs-redis';
+import * as process from 'process';
 
 import { MailModule } from '../common/mail.module';
 import { PrismaService } from '../common/orm/prisma.service';
@@ -9,7 +11,6 @@ import { UserModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { BearerStrategy } from './strategies';
-import { RedisModule } from "@webeleon/nestjs-redis";
 
 @Module({
   imports: [

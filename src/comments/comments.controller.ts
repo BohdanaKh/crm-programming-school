@@ -20,10 +20,11 @@ export class CommentsController {
     @Param('orderId') orderId: string,
     @Body('comment') comment: string,
   ): Promise<Comment> {
-    console.log(user);
     return await this.commentsService.createComment(user, orderId, comment);
   }
 
+  @Roles('admin', 'manager')
+  @UseGuards(BearerAuthGuard, RoleGuard)
   @Get(':orderId')
   async getCommentsByOrderId(
     @Param('orderId') orderId: string,

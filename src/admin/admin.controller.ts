@@ -3,16 +3,14 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Roles } from '../common/decorators/roles.decorator';
-import { BearerAuthGuard } from '../common/guards/bearer-auth.guard';
 import { RoleGuard } from '../common/guards/role.guard';
-import { AdminService } from "./admin.service";
+import { AdminService } from './admin.service';
 
 @ApiTags('Admin')
 @ApiBearerAuth()
-
 @Controller('adminPanel')
 export class AdminController {
-  constructor( private adminService: AdminService,) {}
+  constructor(private adminService: AdminService) {}
   @Roles('admin')
   @UseGuards(AuthGuard(), RoleGuard)
   @Get()

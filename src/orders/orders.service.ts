@@ -1,21 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { Orders } from '@prisma/client';
 
 import { JWTPayload } from '../auth/models_dtos/interface';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { ApiError } from '../common/errors/api.error';
+import { CurrentUser } from '../common/decorators';
+import { ApiError } from '../common/errors';
 import { PrismaService } from '../common/orm/prisma.service';
-import { PaginatedDto } from '../common/pagination/response';
-import { PublicOrderInfoDto } from '../common/query/order.query.dto';
-import { UserService } from '../users/users.service';
-import { OrderUpdateRequestDto } from './models-dtos/order.update.request.dto';
+import { PaginatedDto } from '../common/pagination';
+import { PublicOrderInfoDto } from '../common/query';
+import { OrderUpdateRequestDto } from './models-dtos';
 
 @Injectable()
 export class OrdersService {
-  constructor(
-    private prisma: PrismaService,
-    private userService: UserService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
   async findAllWithPagination(
     query: PublicOrderInfoDto,
   ): Promise<PaginatedDto<Orders>> {
@@ -44,8 +40,6 @@ export class OrdersService {
         [sortBy]: 'asc',
       };
     }
-
-    // const orderBy = sortingOptions[sort] || sortingOptions.created_at_desc;
 
     const limit = 25;
     const page = +query.page || 1;
@@ -123,6 +117,12 @@ export class OrdersService {
     data: OrderUpdateRequestDto,
   ): Promise<Orders> {
     // const findUser = await this.userService.getUserById(user.id);
+    const findOrder = await this.prisma.orders.findUnique({
+      where: { id: +orderId },
+    });
+    if (!(findOrder.managerId === +user.id)) {
+      throw new ForbiddenException();
+    }
     try {
       let groupName: string;
       let newGroupId: number;
@@ -164,10 +164,10 @@ export class OrdersService {
     }
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: string): Promise<void> {
     try {
       await this.prisma.orders.delete({
-        where: { id },
+        where: { id: +id },
       });
     } catch (error) {
       throw new ApiError(`Order deletion failed for ID ${id}`, error.status);

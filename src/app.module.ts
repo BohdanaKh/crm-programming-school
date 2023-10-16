@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
 import { RedisModule } from '@webeleon/nestjs-redis';
 import * as process from 'process';
 
@@ -9,13 +8,12 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { PassportWrapperModule } from './auth/passport-wrapper.module';
-import { RoleGuard } from './common/guards/role.guard';
+import { CommentsModule } from './comments/comments.module';
 import { MailModule } from './common/mail.module';
 import { PrismaService } from './common/orm/prisma.service';
+import { GroupsModule } from './groups/groups.module';
 import { OrdersModule } from './orders/orders.module';
 import { UserModule } from './users/users.module';
-import { CommentsModule } from './comments/comments.module';
-import { GroupsModule } from './groups/groups.module';
 
 @Module({
   imports: [
@@ -23,7 +21,7 @@ import { GroupsModule } from './groups/groups.module';
       isGlobal: true,
     }),
     RedisModule.forRoot({
-      url: 'redis://localhost:6379',
+      url: process.env.REDIS_URL,
     }),
     AuthModule,
     OrdersModule,
@@ -36,14 +34,7 @@ import { GroupsModule } from './groups/groups.module';
     GroupsModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    PrismaService,
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: RoleGuard,
-    // },
-  ],
+  providers: [AppService, PrismaService],
   exports: [PrismaService],
 })
 export class AppModule {}

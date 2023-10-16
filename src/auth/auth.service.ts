@@ -1,4 +1,8 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRedisClient, RedisClient } from '@webeleon/nestjs-redis';
 import * as bcrypt from 'bcrypt';
@@ -10,7 +14,6 @@ import { ApiError } from '../common/errors/api.error';
 import { EEmailActions } from '../common/mail/email.enum';
 import { MailService } from '../common/mail/mail.service';
 import { PrismaService } from '../common/orm/prisma.service';
-import { OrdersService } from '../orders/orders.service';
 import { UserMapper } from '../users/users.mapper';
 import { UserService } from '../users/users.service';
 import { EActionTokenTypes } from './models_dtos/enums';
@@ -20,7 +23,6 @@ import { LoginResponseDto } from './models_dtos/response';
 
 @Injectable()
 export class AuthService {
-  private salt = 10;
   constructor(
     private prisma: PrismaService,
     private readonly jwtService: JwtService,
@@ -32,7 +34,10 @@ export class AuthService {
   async login(loginUser: UserLoginDto): Promise<LoginResponseDto> {
     const findUser = await this.userService.findUserByEmail(loginUser.email);
     if (!findUser) {
-      throw new HttpException('Email or password is not correct', 401);
+      throw new UnauthorizedException({
+        message: 'Email or password is not correct',
+        statusCode: 401,
+      });
     }
     if (!findUser.is_active) {
       throw new HttpException('Access denied', 403);
@@ -56,27 +61,9 @@ export class AuthService {
       });
       const token = await this.signIn(payload);
       await this.redisClient.setEx(token, 10000, token);
-
-      // await this.ordersService.findAllWithPagination({
-      //   page: '1',
-      //   sort: 'created_at',
-      //   order: 'desc',
-      //   limit: null,
-      //   search: null,
-      //   name: null,
-      //   surname: null,
-      //   email: null,
-      //   phone: null,
-      //   age: null,
-      //   course: null,
-      //   courseFormat: null,
-      //   courseType: null,
-      //   status: null,
-      //   group: null,
-      // });
       return { token, user: UserMapper.toResponseDto(findUser) };
     }
-    throw new ApiError('Email or password is not correct', 401);
+    throw new UnauthorizedException();
   }
 
   async generateActivationTokenUrl(
@@ -106,13 +93,11 @@ export class AuthService {
           template = EEmailActions.RECOVERY_PASSWORD;
           break;
       }
-      console.log(secretKey);
       const activationToken = await this.signIn({
         payload: userJwtPayload,
         options: { secret: secretKey, expiresIn: '30m' },
       });
       const activationUrl = `${process.env.BASE_URL}/activate/${activationToken}`;
-      console.log(activationUrl);
       copyPaste.copy(activationUrl, () => {
         console.log('Copied to clipboard:', activationUrl);
       });
@@ -129,16 +114,6 @@ export class AuthService {
     return this.jwtService.signAsync(data);
   }
 
-  // async validateUser(data: UserLoginDto): Promise<User> {
-  //   const user = await this.userService.findUserByEmail(data.email.trim());
-  //   if (user && user.password === data.password) {
-  //     const { password, ...result } = user;
-  //     return result;
-  //   }
-  //
-  //   return null;
-  // }
-
   async verify(token: string): Promise<JWTPayload> {
     try {
       const jwtData = await this.jwtService.verifyAsync(token);
@@ -146,25 +121,6 @@ export class AuthService {
     } catch (e) {
       throw new ApiError('Token is not valid', 401);
     }
-  }
-
-  // async decode(token: string): Promise<JWTPayload | any> {
-  //   try {
-  //     return this.jwtService.decode(token);
-  //   } catch (e) {
-  //     // eslint-disable-next-line no-console
-  //     console.log(
-  //       new Date().toISOString(),
-  //       ' [JWT VERIFY ERROR] ',
-  //       JSON.stringify(e),
-  //       ' [TOKEN] ',
-  //       token,
-  //     );
-  //   }
-  // }
-
-  async getHash(password: string) {
-    return await bcrypt.hash(password, this.salt);
   }
 
   async compareHash(password: string, hash: string): Promise<boolean> {

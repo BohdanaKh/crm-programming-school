@@ -11,7 +11,6 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiExtraModels,
@@ -20,57 +19,37 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { Roles } from '../common/decorators/roles.decorator';
-import { BearerAuthGuard } from '../common/guards/bearer-auth.guard';
-import { RoleGuard } from '../common/guards/role.guard';
-import {
-  ApiPaginatedResponse,
-  PaginatedDto,
-} from '../common/pagination/response';
-import { PublicUserInfoDto } from '../common/query/user.query.dto';
+import { Roles } from '../common/decorators';
+import { BearerAuthGuard, RoleGuard } from '../common/guards';
+import { ApiPaginatedResponse, PaginatedDto } from '../common/pagination';
+import { PublicUserInfoDto } from '../common/query';
 import { PublicUserData } from './models/interface';
 import { UserCreateRequestDto, UserUpdateRequestDto } from './models/request';
 import { UserResponseDto } from './models/response';
-import { StatusCount, UserStatisticsResponseDto } from "./models/response/user-statistics.response.dto";
 import { UserMapper } from './users.mapper';
 import { UserService } from './users.service';
 
-// @ApiBearerAuth()
-// @UseGuards(AuthGuard())
 @ApiTags('User')
 @ApiExtraModels(PublicUserData, PaginatedDto)
-// @ApiBearerAuth()
-// @UseGuards(AuthGuard())
+@ApiBearerAuth()
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @ApiResponse({ status: HttpStatus.CREATED, type: UserCreateRequestDto })
   @Roles('admin')
-  @UseGuards(AuthGuard(), RoleGuard)
+  @UseGuards(BearerAuthGuard, RoleGuard)
   @Post('create')
   async createUser(
     @Body() body: UserCreateRequestDto,
   ): Promise<UserResponseDto> {
     const newUser = await this.userService.createUserByAdmin(body);
     return UserMapper.toResponseDto(newUser);
-    // return (
-    //   res
-    //     .status(HttpStatus.CREATED)
-    //     // .json(await this.userService.createUserByAdmin(body));
-    //     .json({
-    //       id: newUser.id,
-    //       name: newUser.name,
-    //       surname: newUser.surname,
-    //       email: newUser.email,
-    //       is_active: newUser.is_active,
-    //       last_login: newUser.last_login,
-    //       created_at: newUser.created_at,
-    //     })
-    // );
   }
 
   @ApiPaginatedResponse('entities', PublicUserData)
+  @Roles('admin', 'manager')
+  @UseGuards(BearerAuthGuard, RoleGuard)
   @Get()
   async findAll(
     @Query() query: PublicUserInfoDto,
@@ -78,28 +57,26 @@ export class UserController {
     return this.userService.getAllUsers(query);
   }
 
+  @Roles('admin')
+  @UseGuards(BearerAuthGuard, RoleGuard)
   @Post('ban/:userId')
   async banUser(@Param('userId') userId: string): Promise<void> {
     await this.userService.banUser(userId);
   }
 
+  @Roles('admin')
+  @UseGuards(BearerAuthGuard, RoleGuard)
   @Post('unban/:userId')
   async unbanUser(@Param('userId') userId: string): Promise<void> {
     await this.userService.unbanUser(userId);
   }
 
+  @Roles('admin', 'manager')
+  @UseGuards(BearerAuthGuard)
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<UserStatisticsResponseDto<StatusCount>> {
-    return await this.userService.getUserById(id);
-    // return res.status(HttpStatus.OK).json({
-    //   id: foundUser.id,
-    //   name: foundUser.name,
-    //   surname: foundUser.surname,
-    //   email: foundUser.email,
-    //   is_active: foundUser.is_active,
-    //   last_login: foundUser.last_login,
-    //   created_at: foundUser.created_at,
-    // });
+  async findOne(@Param('id') id: string): Promise<UserResponseDto> {
+    const result = await this.userService.getUserById(id);
+    return UserMapper.toResponseDto(result);
   }
 
   @Roles('admin')
@@ -111,21 +88,14 @@ export class UserController {
   ): Promise<UserResponseDto> {
     const updatedUser = await this.userService.update(id, data);
     return UserMapper.toResponseDto(updatedUser);
-    // return res.status(HttpStatus.OK).json({
-    //   id: updatedUser.id,
-    //   name: updatedUser.name,
-    //   surname: updatedUser.surname,
-    //   email: updatedUser.email,
-    //   is_active: updatedUser.is_active,
-    //   last_login: updatedUser.last_login,
-    //   created_at: updatedUser.created_at,
-    // });
   }
 
   @ApiOperation({
     description: 'Deleting a user',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
+  @Roles('admin')
+  @UseGuards(BearerAuthGuard, RoleGuard)
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<void> {
     await this.userService.remove(id);
