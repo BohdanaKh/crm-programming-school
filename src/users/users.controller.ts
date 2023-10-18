@@ -25,18 +25,18 @@ import { ApiPaginatedResponse, PaginatedDto } from '../common/pagination';
 import { PublicUserInfoDto } from '../common/query';
 import { PublicUserData } from './models/interface';
 import { UserCreateRequestDto, UserUpdateRequestDto } from './models/request';
-import { UserResponseDto } from './models/response';
+import { UserResponseDto, UsersWithOrdersResponseDTO } from './models/response';
 import { UserMapper } from './users.mapper';
 import { UserService } from './users.service';
 
-@ApiTags('User')
+@ApiTags('Users')
 @ApiExtraModels(PublicUserData, PaginatedDto)
 @ApiBearerAuth()
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @ApiResponse({ status: HttpStatus.CREATED, type: UserCreateRequestDto })
+  @ApiResponse({ status: HttpStatus.CREATED, type: PublicUserData })
   @Roles('admin')
   @UseGuards(BearerAuthGuard, RoleGuard)
   @Post('create')
@@ -48,15 +48,16 @@ export class UserController {
   }
 
   @ApiPaginatedResponse('entities', PublicUserData)
-  @Roles('admin', 'manager')
+  @Roles('admin')
   @UseGuards(BearerAuthGuard, RoleGuard)
   @Get()
   async findAll(
     @Query() query: PublicUserInfoDto,
-  ): Promise<PaginatedDto<UserResponseDto>> {
+  ): Promise<PaginatedDto<UsersWithOrdersResponseDTO>> {
     return this.userService.getAllUsers(query);
   }
 
+  @ApiOperation({ description: 'Block user' })
   @Roles('admin')
   @UseGuards(BearerAuthGuard, RoleGuard)
   @Post('ban/:userId')
@@ -64,6 +65,7 @@ export class UserController {
     await this.userService.banUser(userId);
   }
 
+  @ApiOperation({ description: 'Unblock user' })
   @Roles('admin')
   @UseGuards(BearerAuthGuard, RoleGuard)
   @Post('unban/:userId')
@@ -71,14 +73,17 @@ export class UserController {
     await this.userService.unbanUser(userId);
   }
 
-  @Roles('admin', 'manager')
-  @UseGuards(BearerAuthGuard)
+  @Roles('admin')
+  @UseGuards(BearerAuthGuard, RoleGuard)
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<UserResponseDto> {
     const result = await this.userService.getUserById(id);
     return UserMapper.toResponseDto(result);
   }
 
+  @ApiOperation({
+    description: 'Updating user data',
+  })
   @Roles('admin')
   @UseGuards(BearerAuthGuard, RoleGuard)
   @Put(':id')

@@ -1,25 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Role } from '@prisma/client';
-import {
-  IsBoolean,
-  IsDate,
-  IsEnum,
-  // IsEnum,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 export class UserCreateRequestDto {
   @ApiProperty()
+  @IsEmail()
   @IsString()
   @IsNotEmpty()
   email: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
-  password: string;
 
   @ApiProperty()
   @IsString()
@@ -31,23 +18,28 @@ export class UserCreateRequestDto {
   @IsNotEmpty()
   surname: string;
 
-  @ApiProperty()
-  @IsBoolean()
-  @IsOptional()
-  is_active: boolean;
+  // @ApiProperty()
+  // @IsString()
+  // @IsOptional()
+  // password: string;
 
-  @ApiProperty()
-  @IsDate()
-  @IsOptional()
-  last_login: string;
-
-  @ApiProperty()
-  @IsDate()
-  @IsOptional()
-  created_at: Date;
-
-  @ApiProperty()
-  @IsEnum(Role)
-  @IsOptional()
-  role: Role;
+  // @ApiProperty()
+  // @IsBoolean()
+  // @IsOptional()
+  // is_active: boolean;
+  //
+  // @ApiProperty()
+  // @IsDate()
+  // @IsOptional()
+  // last_login: string;
+  //
+  // @ApiProperty()
+  // @IsDate()
+  // @IsOptional()
+  // created_at: Date;
+  //
+  // @ApiProperty()
+  // @IsEnum(Role)
+  // @IsOptional()
+  // role: Role;
 }

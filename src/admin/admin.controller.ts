@@ -1,9 +1,8 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-import { Roles } from '../common/decorators/roles.decorator';
-import { RoleGuard } from '../common/guards/role.guard';
+import { Roles } from '../common/decorators';
+import { BearerAuthGuard, RoleGuard } from '../common/guards';
 import { AdminService } from './admin.service';
 
 @ApiTags('Admin')
@@ -12,7 +11,7 @@ import { AdminService } from './admin.service';
 export class AdminController {
   constructor(private adminService: AdminService) {}
   @Roles('admin')
-  @UseGuards(AuthGuard(), RoleGuard)
+  @UseGuards(BearerAuthGuard, RoleGuard)
   @Get()
   async getAdminPanel() {
     return await this.adminService.getOrdersCounts();

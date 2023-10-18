@@ -1,3 +1,5 @@
+import { Orders } from '@prisma/client';
+
 export class UserResponseDto {
   id: number;
 
@@ -10,4 +12,8 @@ export class UserResponseDto {
   is_active: boolean;
 
   last_login: string;
+}
+
+export class UsersWithOrdersResponseDTO extends UserResponseDto {
+  orders: Orders[];
 }

@@ -69,7 +69,7 @@ export class OrdersController {
     description: 'Deleting an order',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Roles('admin', 'manager')
+  @Roles('admin')
   @UseGuards(BearerAuthGuard, RoleGuard)
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<void> {

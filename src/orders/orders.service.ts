@@ -1,9 +1,12 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Orders } from '@prisma/client';
 
 import { JWTPayload } from '../auth/models_dtos/interface';
-import { CurrentUser } from '../common/decorators';
-import { ApiError } from '../common/errors';
 import { PrismaService } from '../common/orm/prisma.service';
 import { PaginatedDto } from '../common/pagination';
 import { PublicOrderInfoDto } from '../common/query';
@@ -28,6 +31,7 @@ export class OrdersService {
       status,
       group,
       manager,
+      managerId,
     } = query;
 
     let sortOption: object;
@@ -71,13 +75,14 @@ export class OrdersService {
               contains: phone || undefined,
             },
           },
-          age ? { age } : undefined,
+          { age: +age || undefined },
           course ? { course } : undefined,
           course_format ? { course_format } : undefined,
           course_type ? { course_type } : undefined,
           status ? { status } : undefined,
           group ? { group } : undefined,
           manager ? { manager } : undefined,
+          { managerId: +managerId || undefined },
         ].filter(Boolean),
       },
     });
@@ -91,12 +96,16 @@ export class OrdersService {
   }
 
   async getOrderWithComments(orderId: string): Promise<Orders> {
-    return this.prisma.orders.findUnique({
+    const order = await this.prisma.orders.findUnique({
       where: { id: +orderId },
       include: {
         comments: true,
       },
     });
+    if (!order) {
+      throw new NotFoundException(`Order with ID ${orderId} is not found`);
+    }
+    return order;
   }
 
   // async findOne(orderId: string): Promise<Orders> {
@@ -112,16 +121,15 @@ export class OrdersService {
   // }
 
   async update(
-    @CurrentUser() user: JWTPayload,
+    user: JWTPayload,
     orderId: string,
     data: OrderUpdateRequestDto,
   ): Promise<Orders> {
-    // const findUser = await this.userService.getUserById(user.id);
-    const findOrder = await this.prisma.orders.findUnique({
-      where: { id: +orderId },
-    });
-    if (!(findOrder.managerId === +user.id)) {
-      throw new ForbiddenException();
+    const findOrder = await this.getOneByIdOrThrow(orderId);
+    if (findOrder.managerId && findOrder.managerId !== +user.id) {
+      throw new ForbiddenException(
+        `Order with ID ${orderId} is already being processed by another manager`,
+      );
     }
     try {
       let groupName: string;
@@ -157,20 +165,34 @@ export class OrdersService {
           ...data,
           groupId: +data.groupId || newGroupId,
           group: data.group || groupName,
+          manager: user.surname,
+          managerId: +user.id,
         },
       });
     } catch (error) {
-      throw new ApiError(`Order update failed for ID ${orderId}`, error.status);
+      throw new BadRequestException(`Order update failed for ID ${orderId}`);
     }
   }
 
   async remove(id: string): Promise<void> {
+    await this.getOneByIdOrThrow(id);
     try {
       await this.prisma.orders.delete({
         where: { id: +id },
       });
     } catch (error) {
-      throw new ApiError(`Order deletion failed for ID ${id}`, error.status);
+      throw new BadRequestException(`Order deletion failed for ID ${id}`);
     }
+  }
+  private async getOneByIdOrThrow(orderId: string): Promise<Orders> {
+    const order = await this.prisma.orders.findUnique({
+      where: {
+        id: +orderId,
+      },
+    });
+    if (!order) {
+      throw new NotFoundException(`Order with ID ${orderId} not found`);
+    }
+    return order;
   }
 }

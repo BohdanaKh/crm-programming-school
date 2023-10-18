@@ -10,7 +10,6 @@ import * as copyPaste from 'copy-paste';
 import * as dayjs from 'dayjs';
 import * as process from 'process';
 
-import { ApiError } from '../common/errors/api.error';
 import { EEmailActions } from '../common/mail/email.enum';
 import { MailService } from '../common/mail/mail.service';
 import { PrismaService } from '../common/orm/prisma.service';
@@ -34,10 +33,7 @@ export class AuthService {
   async login(loginUser: UserLoginDto): Promise<LoginResponseDto> {
     const findUser = await this.userService.findUserByEmail(loginUser.email);
     if (!findUser) {
-      throw new UnauthorizedException({
-        message: 'Email or password is not correct',
-        statusCode: 401,
-      });
+      throw new UnauthorizedException('Email or password is not correct');
     }
     if (!findUser.is_active) {
       throw new HttpException('Access denied', 403);
@@ -47,6 +43,7 @@ export class AuthService {
       const payload: JWTPayload = {
         id: findUser.id.toString(),
         userName: findUser.name,
+        surname: findUser.surname,
         role: findUser.role,
       };
       const currentDate = dayjs();
@@ -63,18 +60,19 @@ export class AuthService {
       await this.redisClient.setEx(token, 10000, token);
       return { token, user: UserMapper.toResponseDto(findUser) };
     }
-    throw new UnauthorizedException();
+    throw new UnauthorizedException('Email or password is not correct');
   }
 
   async generateActivationTokenUrl(
     userId: string,
     tokenType: EActionTokenTypes,
-  ): Promise<string> {
+  ) {
+    const user = await this.userService.getUserById(userId);
     try {
-      const user = await this.userService.getUserById(userId);
       const userJwtPayload: JWTPayload = {
         id: user.id.toString(),
         userName: user.name,
+        surname: user.surname,
         role: user.role,
       };
       let secretKey: string;
@@ -93,20 +91,21 @@ export class AuthService {
           template = EEmailActions.RECOVERY_PASSWORD;
           break;
       }
+      const expirationTime = process.env.JWT_ACTIVATE_TTL;
       const activationToken = await this.signIn({
         payload: userJwtPayload,
-        options: { secret: secretKey, expiresIn: '30m' },
+        options: { secret: secretKey, expiresIn: expirationTime },
       });
       const activationUrl = `${process.env.BASE_URL}/activate/${activationToken}`;
       copyPaste.copy(activationUrl, () => {
         console.log('Copied to clipboard:', activationUrl);
       });
 
-      return this.mailService.send(user.email, subject, template, {
+      await this.mailService.send(user.email, subject, template, {
         activationUrl,
       });
     } catch (e) {
-      throw new ApiError(e.message, e.status);
+      throw new HttpException('User activation failed', 400);
     }
   }
 
@@ -118,8 +117,13 @@ export class AuthService {
     try {
       const jwtData = await this.jwtService.verifyAsync(token);
       return jwtData.payload;
-    } catch (e) {
-      throw new ApiError('Token is not valid', 401);
+    } catch (error) {
+      // throw new HttpException('Token is not valid', 401);
+      if (error.name === 'TokenExpiredError') {
+        console.log('Token has expired');
+      } else {
+        console.log('Invalid token:', error.message);
+      }
     }
   }
 

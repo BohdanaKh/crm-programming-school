@@ -12,7 +12,7 @@ import { PrismaService } from '../common/orm/prisma.service';
 import { PaginatedDto } from '../common/pagination';
 import { PublicUserInfoDto } from '../common/query';
 import { UserCreateRequestDto, UserUpdateRequestDto } from './models/request';
-import { UserResponseDto } from './models/response';
+import { UsersWithOrdersResponseDTO } from './models/response';
 
 @Injectable()
 export class UserService {
@@ -20,26 +20,28 @@ export class UserService {
   constructor(private prisma: PrismaService) {}
   async getAllUsers(
     query: PublicUserInfoDto,
-  ): Promise<PaginatedDto<UserResponseDto>> {
+  ): Promise<PaginatedDto<UsersWithOrdersResponseDTO>> {
     const limit = 10;
     const page = +query.page || 1;
     const skip = (page - 1) * limit;
     const count = await this.prisma.user.count();
-    const entities: UserResponseDto[] = await this.prisma.user.findMany({
-      take: limit,
-      skip: skip,
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        surname: true,
-        is_active: true,
-        last_login: true,
-      },
-      orderBy: {
-        created_at: 'desc',
-      },
-    });
+    const entities: UsersWithOrdersResponseDTO[] =
+      await this.prisma.user.findMany({
+        take: limit,
+        skip: skip,
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          surname: true,
+          is_active: true,
+          last_login: true,
+          orders: true,
+        },
+        orderBy: {
+          created_at: 'desc',
+        },
+      });
     return {
       page: page,
       pages: Math.ceil(count / limit),
@@ -52,24 +54,21 @@ export class UserService {
       where: { email: userData.email.trim() },
     });
     if (findUser) {
-      throw new ConflictException({
-        message: 'User with this email already exists',
-        statusCode: 409,
-      });
+      throw new ConflictException('User with this email already exists');
     }
-    let hashedPassword: string;
-    userData.password
-      ? (hashedPassword = await this.hashPassword(userData.password))
-      : (hashedPassword = null);
+    // let hashedPassword: string;
+    // userData.password
+    //   ? (hashedPassword = await this.hashPassword(userData.password))
+    //   : (hashedPassword = null);
     return this.prisma.user.create({
       data: {
         email: userData.email.trim(),
-        password: hashedPassword,
+        password: null,
         name: userData.name,
         surname: userData.surname,
-        is_active: userData.is_active || false,
-        last_login: userData.last_login || null,
-        role: userData.role || Role.manager,
+        is_active: false,
+        last_login: null,
+        role: Role.manager,
       },
     });
   }

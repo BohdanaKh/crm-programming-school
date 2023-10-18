@@ -23,13 +23,9 @@ import { BearerStrategy } from './strategies';
     PassportModule.register({ defaultStrategy: 'bearer' }),
     JwtModule.registerAsync({
       useFactory: async () => ({
-        secret: process.env.JWT_SECRET_KEY,
+        secret: process.env.JWT_ACCESS_SECRET_KEY,
         signOptions: {
           expiresIn: process.env.JWT_TTL,
-        },
-        verifyOptions: {
-          clockTolerance: 60,
-          maxAge: process.env.JWT_TTL,
         },
       }),
     }),

@@ -72,21 +72,6 @@ npm install
 yarn install
 ```
 
-Copy [.env.example](./.env.example) and rename to `.env` - `cp .env.example .env` - which sets the required environments for MySQL such as USER, PASSWORD and DATABASE. Update the variables as you wish and select a strong password.
-
-
-Using .hbs which is staying inside src/templates/[container]/[some-example-template].hbs,
-
-modify nest-cli.json file as given below:
-```
-{
-"collection": "@nestjs/schematics",
-"sourceRoot": "src",
-"compilerOptions": {
-"assets": ["**/*.hbs"]
-}
-}
-```
 
 ### 2. Prisma Migrate
 

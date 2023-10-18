@@ -1,13 +1,12 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
-import { Comment } from '@prisma/client';
+import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 import { JWTPayload } from '../auth/models_dtos/interface';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { Roles } from '../common/decorators/roles.decorator';
-import { BearerAuthGuard } from '../common/guards/bearer-auth.guard';
-import { RoleGuard } from '../common/guards/role.guard';
+import { CurrentUser, Roles } from '../common/decorators';
+import { BearerAuthGuard, RoleGuard } from '../common/guards';
 import { CommentsService } from './comments.service';
 
+@ApiTags('Comments')
 @Controller('comments')
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
@@ -19,16 +18,16 @@ export class CommentsController {
     @CurrentUser() user: JWTPayload,
     @Param('orderId') orderId: string,
     @Body('comment') comment: string,
-  ): Promise<Comment> {
-    return await this.commentsService.createComment(user, orderId, comment);
+  ): Promise<void> {
+    await this.commentsService.createComment(user, orderId, comment);
   }
 
-  @Roles('admin', 'manager')
-  @UseGuards(BearerAuthGuard, RoleGuard)
-  @Get(':orderId')
-  async getCommentsByOrderId(
-    @Param('orderId') orderId: string,
-  ): Promise<Comment[]> {
-    return await this.commentsService.getCommentsByOrderId(orderId);
-  }
+  // @Roles('admin', 'manager')
+  // @UseGuards(BearerAuthGuard, RoleGuard)
+  // @Get(':orderId')
+  // async getCommentsByOrderId(
+  //   @Param('orderId') orderId: string,
+  // ): Promise<Comment[]> {
+  //   return await this.commentsService.getCommentsByOrderId(orderId);
+  // }
 }

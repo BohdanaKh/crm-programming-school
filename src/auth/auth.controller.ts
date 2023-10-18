@@ -3,7 +3,6 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
-  NotFoundException,
   Param,
   Post,
   Put,
@@ -11,10 +10,8 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-import { Roles } from '../common/decorators/roles.decorator';
-import { BearerAuthGuard } from '../common/guards/bearer-auth.guard';
-import { LogoutGuard } from '../common/guards/logout.guard';
-import { RoleGuard } from '../common/guards/role.guard';
+import { Roles } from '../common/decorators';
+import { BearerAuthGuard, LogoutGuard, RoleGuard } from '../common/guards';
 import { UserService } from '../users/users.service';
 import { AuthService } from './auth.service';
 import { EActionTokenTypes } from './models_dtos/enums';
@@ -42,23 +39,8 @@ export class AuthController {
     return 'Logout';
   }
 
-  @HttpCode(HttpStatus.OK)
-  @Put('activate/:activationToken')
-  async activateUserByUser(
-    @Param('activationToken') activationToken: string,
-    @Body() body: ActivateUserDto,
-  ): Promise<void> {
-    const jwtPayload = await this.authService.verify(activationToken);
-    const { id } = jwtPayload;
-    try {
-      await this.userService.getUserById(id);
-    } catch (err) {
-      throw new NotFoundException();
-    }
-    return await this.userService.activateUserByUser(id, body);
-  }
-
   @ApiBearerAuth()
+  @ApiOperation({ description: 'Activation user account by admin' })
   @Roles('admin')
   @UseGuards(BearerAuthGuard, RoleGuard)
   @HttpCode(HttpStatus.OK)
@@ -70,6 +52,18 @@ export class AuthController {
     );
   }
 
+  @ApiOperation({ description: 'Activation account by user' })
+  @HttpCode(HttpStatus.OK)
+  @Put('activate/:activationToken')
+  async activateUserByUser(
+    @Param('activationToken') activationToken: string,
+    @Body() body: ActivateUserDto,
+  ): Promise<void> {
+    const jwtPayload = await this.authService.verify(activationToken);
+    const { id } = jwtPayload;
+    await this.userService.getUserById(id);
+    return await this.userService.activateUserByUser(id, body);
+  }
   @ApiBearerAuth()
   @Roles('admin')
   @UseGuards(BearerAuthGuard, RoleGuard)

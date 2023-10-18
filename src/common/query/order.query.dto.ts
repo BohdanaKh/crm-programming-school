@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Course, CourseFormat, CourseType, Status } from '@prisma/client';
-import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
 
 export class PublicOrderInfoDto {
   @ApiProperty()
@@ -20,6 +20,8 @@ export class PublicOrderInfoDto {
     'sum',
     'alreadyPaid',
     'created_at',
+    'group',
+    'manager',
     '-id',
     '-name',
     '-surname',
@@ -33,6 +35,8 @@ export class PublicOrderInfoDto {
     '-sum',
     '-alreadyPaid',
     '-created_at',
+    '-group',
+    '-manager',
   ])
   sort: string;
 
@@ -72,9 +76,9 @@ export class PublicOrderInfoDto {
   phone: string;
 
   @ApiProperty()
-  @IsNumber()
+  @IsString()
   @IsOptional()
-  age: number;
+  age: string;
 
   @ApiProperty()
   @IsString()
@@ -108,4 +112,9 @@ export class PublicOrderInfoDto {
   @IsString()
   @IsOptional()
   manager: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  managerId: string;
 }

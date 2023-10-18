@@ -5,10 +5,11 @@ import * as dotenv from 'dotenv';
 
 import { AppModule } from './app.module';
 
-const environment = process.env.NODE_ENV ?? '';
-dotenv.config({ path: `environments/${environment}.env` });
+// const environment = process.env.NODE_ENV ?? '';
+// dotenv.config({ path: `environments/${environment}.env` });
 
 async function bootstrap() {
+  dotenv.config();
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
   const config = new DocumentBuilder()
@@ -19,6 +20,6 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-  await app.listen(3000);
+  await app.listen(5100);
 }
 bootstrap();
