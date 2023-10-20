@@ -11,14 +11,18 @@ import { PassportWrapperModule } from './auth/passport-wrapper.module';
 import { CommentsModule } from './comments/comments.module';
 import { MailModule } from './common/mail.module';
 import { PrismaService } from './common/orm/prisma.service';
+import { AppConfigModule } from './config/config.module';
+import configuration from './config/configuration';
 import { GroupsModule } from './groups/groups.module';
 import { OrdersModule } from './orders/orders.module';
 import { UserModule } from './users/users.module';
 
 @Module({
   imports: [
+    AppConfigModule,
     ConfigModule.forRoot({
       isGlobal: true,
+      load: [configuration],
     }),
     RedisModule.forRoot({
       url: process.env.REDIS_URL,

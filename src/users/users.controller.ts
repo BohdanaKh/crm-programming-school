@@ -58,6 +58,7 @@ export class UserController {
   }
 
   @ApiOperation({ description: 'Block user' })
+  @HttpCode(HttpStatus.OK)
   @Roles('admin')
   @UseGuards(BearerAuthGuard, RoleGuard)
   @Post('ban/:userId')
@@ -66,6 +67,7 @@ export class UserController {
   }
 
   @ApiOperation({ description: 'Unblock user' })
+  @HttpCode(HttpStatus.OK)
   @Roles('admin')
   @UseGuards(BearerAuthGuard, RoleGuard)
   @Post('unban/:userId')

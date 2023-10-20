@@ -6,32 +6,50 @@ import * as process from 'process';
 
 import { MailModule } from '../common/mail.module';
 import { PrismaService } from '../common/orm/prisma.service';
+import { AppConfigModule } from '../config/config.module';
+import { AppConfigService } from '../config/configuration.service';
 import { OrdersModule } from '../orders/orders.module';
 import { UserModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
+import { AuthService } from './services/auth.service';
+import { TokenService } from './services/token.service';
 import { BearerStrategy } from './strategies';
+
+const JwtFactory = (config: AppConfigService) => ({
+  secret: config.accessTokenSecret,
+  signOptions: {
+    expiresIn: config.accessTokenExpiration,
+  },
+});
+
+const JwtRegistrationOptions = {
+  imports: [AppConfigModule],
+  useFactory: JwtFactory,
+  inject: [AppConfigService],
+};
 
 @Module({
   imports: [
     RedisModule.forRoot({
-      url: 'redis://localhost:6379',
+      url: process.env.REDIS_URL,
     }),
+    AppConfigModule,
     UserModule,
     OrdersModule,
     MailModule,
     PassportModule.register({ defaultStrategy: 'bearer' }),
-    JwtModule.registerAsync({
-      useFactory: async () => ({
-        secret: process.env.JWT_ACCESS_SECRET_KEY,
-        signOptions: {
-          expiresIn: process.env.JWT_TTL,
-        },
-      }),
-    }),
+    JwtModule.registerAsync(JwtRegistrationOptions),
+    // ConfigModule.forRoot({
+    //   load: [configuration],
+    // }),
   ],
-  providers: [AuthService, BearerStrategy, PrismaService],
+  providers: [
+    AuthService,
+    BearerStrategy,
+    PrismaService,
+    TokenService,
+    AppConfigService,
+  ],
   controllers: [AuthController],
-  exports: [AuthService],
 })
 export class AuthModule {}

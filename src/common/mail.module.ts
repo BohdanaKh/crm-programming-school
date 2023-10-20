@@ -1,25 +1,30 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import * as path from 'path';
 
+import { AppConfigModule } from '../config/config.module';
+import configuration from '../config/configuration';
+import { AppConfigService } from '../config/configuration.service';
 import { MailService } from './mail/mail.service';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      load: [configuration],
+    }),
     MailerModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
+      imports: [AppConfigModule],
+      useFactory: (configService: AppConfigService) => ({
         transport: {
-          host: 'smtp.gmail.com',
-          port: 465,
+          host: configService.host,
+          port: configService.port,
           secure: true,
           auth: {
-            // type: 'login',
-            user: configService.get<string>('EMAIL_USER'),
-            pass: configService.get<string>('EMAIL_PASSWORD'),
+            type: 'login',
+            user: configService.emailUser,
+            pass: configService.emailPassword,
           },
         },
         defaults: {
@@ -34,7 +39,7 @@ import { MailService } from './mail/mail.service';
           },
         },
       }),
-      inject: [ConfigService],
+      inject: [AppConfigService],
     }),
   ],
   providers: [MailService],
