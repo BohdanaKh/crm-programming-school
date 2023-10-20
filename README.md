@@ -113,11 +113,11 @@ npm run start
 # watch mode
 npm run start:dev
 ```
-Navigate to `http://localhost:3000`
+Navigate to `http://localhost:5100`
 
 ## Rest Api
 
-[RESTful API](http://localhost:3000/api) documentation available with Swagger.
+[RESTful API](http://localhost:5100/api) documentation available with Swagger.
 
 ## Schema Development
 
