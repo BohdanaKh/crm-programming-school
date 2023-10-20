@@ -103,8 +103,8 @@ export class UserController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Roles('admin')
   @UseGuards(BearerAuthGuard, RoleGuard)
-  @Delete(':id')
-  async remove(@Param('id') id: string): Promise<void> {
-    await this.userService.remove(id);
+  @Delete(':userId')
+  async remove(@Param('userId') userId: string): Promise<void> {
+    await this.userService.remove(userId);
   }
 }

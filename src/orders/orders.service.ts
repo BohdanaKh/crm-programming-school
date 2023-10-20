@@ -46,9 +46,20 @@ export class OrdersService {
     }
 
     const limit = 25;
+    const count = await this.prisma.orders.count();
+    function checkStrDigit(str: string): boolean {
+      return /^\d+$/.test(str);
+    }
+    if (
+      query.page &&
+      (+query.page > Math.ceil(count / limit) ||
+        +query.page < 1 ||
+        !checkStrDigit(query.page))
+    ) {
+      throw new BadRequestException(`Page ${query.page} is not found`);
+    }
     const page = +query.page || 1;
     const skip = (page - 1) * limit;
-    const count = await this.prisma.orders.count();
     const entities = await this.prisma.orders.findMany({
       take: limit,
       skip: skip,

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -22,9 +23,20 @@ export class UserService {
     query: PublicUserInfoDto,
   ): Promise<PaginatedDto<UsersWithOrdersResponseDTO>> {
     const limit = 10;
+    const count = await this.prisma.user.count();
+    function checkStrDigit(str: string): boolean {
+      return /^\d+$/.test(str);
+    }
+    if (
+      query.page &&
+      (+query.page > Math.ceil(count / limit) ||
+        +query.page < 1 ||
+        !checkStrDigit(query.page))
+    ) {
+      throw new BadRequestException(`Page ${query.page} is not found`);
+    }
     const page = +query.page || 1;
     const skip = (page - 1) * limit;
-    const count = await this.prisma.user.count();
     const entities: UsersWithOrdersResponseDTO[] =
       await this.prisma.user.findMany({
         take: limit,

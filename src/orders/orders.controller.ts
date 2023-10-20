@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -60,9 +61,14 @@ export class OrdersController {
   async update(
     @CurrentUser() user: JWTPayload,
     @Param('orderId') orderId: string,
-    @Body() updateOrderDto: OrderUpdateRequestDto,
+    @Body() body: OrderUpdateRequestDto,
   ): Promise<Orders> {
-    return await this.ordersService.update(user, orderId, updateOrderDto);
+    if (body.group && body.groupId) {
+      throw new BadRequestException(
+        'You can only provide "group" or "groupId," not both.',
+      );
+    }
+    return await this.ordersService.update(user, orderId, body);
   }
 
   @ApiOperation({
@@ -71,8 +77,8 @@ export class OrdersController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Roles('admin')
   @UseGuards(BearerAuthGuard, RoleGuard)
-  @Delete(':id')
-  async remove(@Param('id') id: string): Promise<void> {
-    await this.ordersService.remove(id);
+  @Delete(':orderId')
+  async remove(@Param('orderId') orderId: string): Promise<void> {
+    await this.ordersService.remove(orderId);
   }
 }
