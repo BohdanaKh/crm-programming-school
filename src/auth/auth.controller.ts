@@ -6,10 +6,12 @@ import {
   Param,
   Post,
   Put,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+// import { InjectRedisClient, RedisClient } from '@webeleon/nestjs-redis';
 import { Roles } from '../common/decorators';
 import { BearerAuthGuard, LogoutGuard, RoleGuard } from '../common/guards';
 import { UserService } from '../users/users.service';
@@ -26,7 +28,7 @@ export class AuthController {
   constructor(
     private authService: AuthService,
     private userService: UserService,
-    private tokenService: TokenService,
+    private tokenService: TokenService, // @InjectRedisClient() private redisClient: RedisClient,
   ) {}
 
   @ApiOperation({ description: 'User authentication' })
@@ -43,11 +45,16 @@ export class AuthController {
   }
 
   @ApiOperation({ description: 'Renew access' })
-  @Post('refresh/:userId')
+  @Post('refresh')
   async getNewToken(
-    @Param('userId') userId: string,
+    @Body('refreshToken') refreshToken: string,
   ): Promise<AuthTokenResponseDto> {
-    return this.authService.renewAccess(userId);
+    // const refreshToken = await this.redisClient.get(`refreshToken:${userId}`);
+    // console.log(refreshToken);
+    // if (!refreshToken) {
+    //   throw new UnauthorizedException('No tokens found');
+    // }
+    return this.authService.renewAccess(refreshToken);
   }
 
   @ApiBearerAuth()

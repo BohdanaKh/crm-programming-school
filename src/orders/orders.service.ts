@@ -46,7 +46,43 @@ export class OrdersService {
     }
 
     const limit = 25;
-    const count = await this.prisma.orders.count();
+    const count = await this.prisma.orders.count({
+      where: {
+        AND: [
+          {
+            name: {
+              contains: name || undefined,
+            },
+          },
+          {
+            surname: {
+              contains: surname || undefined,
+            },
+          },
+          {
+            email: {
+              contains: email || undefined,
+            },
+          },
+          {
+            phone: {
+              contains: phone || undefined,
+            },
+          },
+          { age: +age || undefined },
+          course ? { course } : undefined,
+          course_format ? { course_format } : undefined,
+          course_type ? { course_type } : undefined,
+          status ? { status } : undefined,
+          group ? { group } : undefined,
+          manager ? { manager } : undefined,
+          { managerId: +managerId || undefined },
+        ].filter(Boolean),
+      },
+    });
+    if (count === 0) {
+      throw new NotFoundException('No orders found');
+    }
     function checkStrDigit(str: string): boolean {
       return /^\d+$/.test(str);
     }
@@ -95,6 +131,9 @@ export class OrdersService {
           manager ? { manager } : undefined,
           { managerId: +managerId || undefined },
         ].filter(Boolean),
+      },
+      include: {
+        comments: true,
       },
     });
 

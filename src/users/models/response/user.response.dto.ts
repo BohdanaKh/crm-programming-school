@@ -10,8 +10,10 @@ export class UserResponseDto {
   surname: string;
 
   is_active: boolean;
+  created_at: Date;
 
   last_login: string;
+  role: string;
 }
 
 export class UsersWithOrdersResponseDTO extends UserResponseDto {

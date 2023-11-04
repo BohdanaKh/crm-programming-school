@@ -1,12 +1,10 @@
 import { ValidationPipe } from '@nestjs/common';
+import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as dotenv from 'dotenv';
 
 import { AppModule } from './app.module';
-
-// const environment = process.env.NODE_ENV ?? '';
-// dotenv.config({ path: `environments/${environment}.env` });
 
 async function bootstrap() {
   dotenv.config();
@@ -20,6 +18,15 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
+  const corsOptions: CorsOptions = {
+    origin: ['http://localhost:3000'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+    credentials: true,
+  };
+
+  app.enableCors(corsOptions);
   await app.listen(5100);
 }
 bootstrap();

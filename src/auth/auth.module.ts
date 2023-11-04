@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { RedisModule } from '@webeleon/nestjs-redis';
+// import { RedisModule } from '@webeleon/nestjs-redis';
 import * as process from 'process';
 
 import { MailModule } from '../common/mail.module';
@@ -30,9 +30,9 @@ const JwtRegistrationOptions = {
 
 @Module({
   imports: [
-    RedisModule.forRoot({
-      url: process.env.REDIS_URL,
-    }),
+    // RedisModule.forRoot({
+    //   url: process.env.REDIS_URL,
+    // }),
     AppConfigModule,
     UserModule,
     OrdersModule,

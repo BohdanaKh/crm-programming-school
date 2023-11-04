@@ -1,7 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { RedisModule } from '@webeleon/nestjs-redis';
+// import { RedisModule } from '@webeleon/nestjs-redis';
 import * as process from 'process';
 
 import { AdminModule } from '../admin/admin.module';
@@ -16,9 +16,9 @@ import { BearerStrategy } from './strategies';
 @Global()
 @Module({
   imports: [
-    RedisModule.forRoot({
-      url: process.env.REDIS_URL,
-    }),
+    // RedisModule.forRoot({
+    //   url: process.env.REDIS_URL,
+    // }),
     UserModule,
     AuthModule,
     AdminModule,

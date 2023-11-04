@@ -3,7 +3,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { InjectRedisClient, RedisClient } from '@webeleon/nestjs-redis';
+// import { InjectRedisClient, RedisClient } from '@webeleon/nestjs-redis';
 import * as bcrypt from 'bcrypt';
 import * as copyPaste from 'copy-paste';
 import * as dayjs from 'dayjs';
@@ -26,10 +26,9 @@ export class AuthService {
     private prisma: PrismaService,
     private readonly tokenService: TokenService,
     private readonly mailService: MailService,
-    private readonly userService: UserService,
-    // private configService: AppConfigService,
-    @InjectRedisClient() private redisClient: RedisClient,
-  ) {}
+    private readonly userService: UserService, // private configService: AppConfigService,
+  ) // @InjectRedisClient() private redisClient: RedisClient,
+  {}
 
   async login(loginUser: UserLoginDto): Promise<LoginResponseDto> {
     const findUser = await this.userService.findUserByEmail(loginUser.email);
@@ -57,15 +56,15 @@ export class AuthService {
           last_login: formattedDate,
         },
       });
-      const userId = findUser.id.toString();
+      // const userId = findUser.id.toString();
       const token = this.tokenService.generateAuthToken(payload);
-      const { accessToken, refreshToken } = token;
-      await this.redisClient.setEx(`accessToken:${userId}`, 3600, accessToken);
-      await this.redisClient.setEx(
-        `refreshToken:${userId}`,
-        86400,
-        refreshToken,
-      );
+      // const { accessToken, refreshToken } = token;
+      // await this.redisClient.setEx(`accessToken:${userId}`, 3600, accessToken);
+      // await this.redisClient.setEx(
+      //   `refreshToken:${userId}`,
+      //   86400,
+      //   refreshToken,
+      // );
       return { token, user: UserMapper.toResponseDto(findUser) };
     }
     throw new UnauthorizedException('Email or password is not correct');
@@ -121,9 +120,8 @@ export class AuthService {
     }
   }
 
-  async renewAccess(userId: string): Promise<AuthTokenResponseDto> {
+  async renewAccess(refreshToken: string): Promise<AuthTokenResponseDto> {
     try {
-      const refreshToken = await this.redisClient.get(`refreshToken:${userId}`);
       return this.tokenService.generateRefreshToken(refreshToken);
     } catch (e) {
       throw new UnauthorizedException();

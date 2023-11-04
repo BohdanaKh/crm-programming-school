@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { User } from '@prisma/client';
-import { InjectRedisClient, RedisClient } from '@webeleon/nestjs-redis';
+// import { InjectRedisClient, RedisClient } from '@webeleon/nestjs-redis';
 import { Strategy } from 'passport-http-bearer';
 import { ExtractJwt } from 'passport-jwt';
 
@@ -17,8 +17,7 @@ export class BearerStrategy extends PassportStrategy(Strategy, 'bearer') {
   constructor(
     private tokenService: TokenService,
     private userService: UserService,
-    private configService: AppConfigService,
-    @InjectRedisClient() readonly redisClient: RedisClient,
+    private configService: AppConfigService, // @InjectRedisClient() readonly redisClient: RedisClient,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -34,10 +33,10 @@ export class BearerStrategy extends PassportStrategy(Strategy, 'bearer') {
         TokenType.Access,
       );
       user = await this.userService.getUserById(payload.id);
-      const { id } = user;
-      if (!(await this.redisClient.exists(`accessToken:${id}`))) {
-        throw new UnauthorizedException();
-      }
+      // const { id } = user;
+      // if (!(await this.redisClient.exists(`accessToken:${id}`))) {
+      //   throw new UnauthorizedException();
+      // }
       return UserMapper.toResponseDto(user);
     } catch (e) {
       throw new UnauthorizedException();

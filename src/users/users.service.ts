@@ -22,8 +22,37 @@ export class UserService {
   async getAllUsers(
     query: PublicUserInfoDto,
   ): Promise<PaginatedDto<UsersWithOrdersResponseDTO>> {
+    const { name, surname, email, is_active } = query;
     const limit = 10;
-    const count = await this.prisma.user.count();
+    const count = await this.prisma.user.count({
+      where: {
+        AND: [
+          {
+            name: {
+              contains: name || undefined,
+            },
+          },
+          {
+            surname: {
+              contains: surname || undefined,
+            },
+          },
+          {
+            email: {
+              contains: email || undefined,
+            },
+          },
+          {
+            is_active: {
+              equals: !!is_active || undefined,
+            },
+          },
+        ].filter(Boolean),
+      },
+    });
+    if (count === 0) {
+      throw new NotFoundException('No users found');
+    }
     function checkStrDigit(str: string): boolean {
       return /^\d+$/.test(str);
     }
@@ -41,13 +70,39 @@ export class UserService {
       await this.prisma.user.findMany({
         take: limit,
         skip: skip,
+        where: {
+          AND: [
+            {
+              name: {
+                contains: name || undefined,
+              },
+            },
+            {
+              surname: {
+                contains: surname || undefined,
+              },
+            },
+            {
+              email: {
+                contains: email || undefined,
+              },
+            },
+            {
+              is_active: {
+                equals: !!is_active || undefined,
+              },
+            },
+          ].filter(Boolean),
+        },
         select: {
           id: true,
           email: true,
           name: true,
           surname: true,
           is_active: true,
+          created_at: true,
           last_login: true,
+          role: true,
           orders: true,
         },
         orderBy: {

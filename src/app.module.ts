@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { RedisModule } from '@webeleon/nestjs-redis';
+// import { RedisModule } from '@webeleon/nestjs-redis';
 import * as process from 'process';
 
 import { AdminModule } from './admin/admin.module';
@@ -24,9 +24,9 @@ import { UserModule } from './users/users.module';
       isGlobal: true,
       load: [configuration],
     }),
-    RedisModule.forRoot({
-      url: process.env.REDIS_URL,
-    }),
+    // RedisModule.forRoot({
+    //   url: process.env.REDIS_URL,
+    // }),
     AuthModule,
     OrdersModule,
     UserModule,

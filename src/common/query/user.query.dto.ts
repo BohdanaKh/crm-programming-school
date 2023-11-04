@@ -5,7 +5,7 @@ export class PublicUserInfoDto {
   @ApiProperty()
   @IsString()
   @IsOptional()
-  @IsEnum(['email', 'name', 'surname', 'isActive', 'lastLogin', 'createdAt'])
+  @IsEnum(['email', 'name', 'surname', 'last_login', 'created_at'])
   sort: string;
 
   @ApiProperty()
@@ -28,4 +28,24 @@ export class PublicUserInfoDto {
   @IsString()
   @IsOptional()
   limit: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  name: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  surname: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  email: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  is_active: boolean;
 }

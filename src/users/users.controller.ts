@@ -39,7 +39,7 @@ export class UserController {
   @ApiResponse({ status: HttpStatus.CREATED, type: PublicUserData })
   @Roles('admin')
   @UseGuards(BearerAuthGuard, RoleGuard)
-  @Post('create')
+  @Post()
   async createUser(
     @Body() body: UserCreateRequestDto,
   ): Promise<UserResponseDto> {
