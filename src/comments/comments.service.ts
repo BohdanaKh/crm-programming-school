@@ -4,10 +4,11 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Status } from '@prisma/client';
+import { Comment, Status } from '@prisma/client';
 
 import { JWTPayload } from '../auth/models_dtos/interface';
 import { PrismaService } from '../common/orm/prisma.service';
+import { CommentCreateDto } from './dto/comment.create.dto';
 
 @Injectable()
 export class CommentsService {
@@ -16,8 +17,8 @@ export class CommentsService {
   async createComment(
     user: JWTPayload,
     orderId: string,
-    comment: string,
-  ): Promise<void> {
+    comment: CommentCreateDto,
+  ): Promise<Comment> {
     const orderToUpdate = await this.prisma.orders.findUnique({
       where: { id: +orderId },
     });
@@ -30,28 +31,31 @@ export class CommentsService {
       );
     }
     try {
-      await this.prisma.comment.create({
+      const newComment = await this.prisma.comment.create({
         data: {
-          comment,
+          comment: comment.comment,
           userId: +user.id,
           orderId: +orderId,
         },
       });
+      let newStatus: Status;
+      if (
+        orderToUpdate.status === Status.New ||
+        orderToUpdate.status === null
+      ) {
+        newStatus = Status.In_work;
+      } else {
+        newStatus = orderToUpdate.status;
+      }
+      await this.prisma.orders.update({
+        where: { id: +orderId },
+        data: { managerId: +user.id, manager: user.surname, status: newStatus },
+      });
+      return newComment;
     } catch (e) {
       throw new BadRequestException('Comment creation failed');
     }
-    let newStatus: Status;
-    if (orderToUpdate.status === Status.New || orderToUpdate.status === null) {
-      newStatus = Status.In_work;
-    } else {
-      newStatus = orderToUpdate.status;
-    }
-    await this.prisma.orders.update({
-      where: { id: +orderId },
-      data: { managerId: +user.id, manager: user.surname, status: newStatus },
-    });
   }
-
   // async getCommentsByOrderId(orderId: string): Promise<Comment[]> {
   //   return this.prisma.comment.findMany({
   //     where: { orderId: +orderId },

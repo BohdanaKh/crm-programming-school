@@ -9,10 +9,10 @@ import {
 } from 'class-validator';
 
 export class OrderUpdateRequestDto {
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
-  groupId: string;
+  // @ApiProperty()
+  // @IsString()
+  // @IsOptional()
+  // groupId: string;
 
   @ApiProperty()
   @IsString()
@@ -74,13 +74,13 @@ export class OrderUpdateRequestDto {
   @IsOptional()
   course_type: CourseType;
 
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
-  utm: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
-  msg: string;
+  // @ApiProperty()
+  // @IsString()
+  // @IsOptional()
+  // utm: string;
+  //
+  // @ApiProperty()
+  // @IsString()
+  // @IsOptional()
+  // msg: string;
 }

@@ -17,6 +17,7 @@ import { BearerAuthGuard, LogoutGuard, RoleGuard } from '../common/guards';
 import { UserService } from '../users/users.service';
 import { TokenType } from './models_dtos/enums';
 import { ActivateUserDto, UserLoginDto } from './models_dtos/request';
+import { RefreshTokenRequestDto } from './models_dtos/request/refresh-token.request.dto';
 import { LoginResponseDto } from './models_dtos/response';
 import { AuthTokenResponseDto } from './models_dtos/response/auth-token.response.dto';
 import { AuthService } from './services/auth.service';
@@ -47,14 +48,17 @@ export class AuthController {
   @ApiOperation({ description: 'Renew access' })
   @Post('refresh')
   async getNewToken(
-    @Body('refreshToken') refreshToken: string,
+    @Body() refreshTokenDto: RefreshTokenRequestDto,
   ): Promise<AuthTokenResponseDto> {
+    console.log(refreshTokenDto);
     // const refreshToken = await this.redisClient.get(`refreshToken:${userId}`);
     // console.log(refreshToken);
     // if (!refreshToken) {
     //   throw new UnauthorizedException('No tokens found');
     // }
-    return this.authService.renewAccess(refreshToken);
+    const { refreshToken } = refreshTokenDto;
+    // console.log(refreshToken);
+    return this.tokenService.generateRefreshToken(refreshToken);
   }
 
   @ApiBearerAuth()
@@ -62,9 +66,9 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Roles('admin')
   @UseGuards(BearerAuthGuard, RoleGuard)
-  @Post('activate/:userId')
-  async activateUserByAdmin(@Param('userId') userId: string): Promise<void> {
-    await this.authService.generateActivationTokenUrl(userId);
+  @Post('users/activate/:userId')
+  async activateUserByAdmin(@Param('userId') userId: string): Promise<string> {
+    return this.authService.generateActivationToken(userId);
   }
   @ApiOperation({ description: 'Password recovery' })
   @HttpCode(HttpStatus.OK)

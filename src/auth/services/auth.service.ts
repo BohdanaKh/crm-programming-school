@@ -19,6 +19,7 @@ import { UserLoginDto } from '../models_dtos/request';
 import { LoginResponseDto } from '../models_dtos/response';
 import { AuthTokenResponseDto } from '../models_dtos/response/auth-token.response.dto';
 import { TokenService } from './token.service';
+import { RefreshTokenRequestDto } from "../models_dtos/request/refresh-token.request.dto";
 
 @Injectable()
 export class AuthService {
@@ -70,7 +71,7 @@ export class AuthService {
     throw new UnauthorizedException('Email or password is not correct');
   }
 
-  async generateActivationTokenUrl(userId: string): Promise<void> {
+  async generateActivationToken(userId: string): Promise<string> {
     const user = await this.userService.getUserById(userId);
     try {
       const userJwtPayload: JWTPayload = {
@@ -79,18 +80,19 @@ export class AuthService {
         surname: user.surname,
         role: user.role,
       };
-      const subject = 'Activate account';
-      const template = EEmailActions.ACTIVATE;
+      // const subject = 'Activate account';
+      // const template = EEmailActions.ACTIVATE;
       const { activationToken } =
         await this.tokenService.generateActivationToken(userJwtPayload);
-      const activationUrl = `${process.env.BASE_URL}/activate/${activationToken}`;
-      copyPaste.copy(activationUrl, () => {
-        console.log('Copied to clipboard:', activationUrl);
-      });
-
-      await this.mailService.send(user.email, subject, template, {
-        activationUrl,
-      });
+      // const activationUrl = `${process.env.BASE_URL}/activate/${activationToken}`;
+      // copyPaste.copy(activationUrl, () => {
+      //   console.log('Copied to clipboard:', activationUrl);
+      // });
+      //
+      // await this.mailService.send(user.email, subject, template, {
+      //   activationUrl,
+      // });
+      return activationToken;
     } catch (e) {
       throw new HttpException('User activation failed', 400);
     }
@@ -120,13 +122,15 @@ export class AuthService {
     }
   }
 
-  async renewAccess(refreshToken: string): Promise<AuthTokenResponseDto> {
-    try {
-      return this.tokenService.generateRefreshToken(refreshToken);
-    } catch (e) {
-      throw new UnauthorizedException();
-    }
-  }
+  // async renewAccess(
+  //   refreshToken: RefreshTokenRequestDto,
+  // ): Promise<AuthTokenResponseDto> {
+  //   try {
+  //     return this.tokenService.generateRefreshToken(refreshToken);
+  //   } catch (e) {
+  //     throw new UnauthorizedException();
+  //   }
+  // }
 
   async compareHash(password: string, hash: string): Promise<boolean> {
     return bcrypt.compare(password, hash);

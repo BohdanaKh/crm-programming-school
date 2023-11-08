@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -63,11 +62,11 @@ export class OrdersController {
     @Param('orderId') orderId: string,
     @Body() body: OrderUpdateRequestDto,
   ): Promise<Orders> {
-    if (body.group && body.groupId) {
-      throw new BadRequestException(
-        'You can only provide "group" or "groupId," not both.',
-      );
-    }
+    // if (body.group && body.groupId) {
+    //   throw new BadRequestException(
+    //     'You can only provide "group" or "groupId," not both.',
+    //   );
+    // }
     return await this.ordersService.update(user, orderId, body);
   }
 

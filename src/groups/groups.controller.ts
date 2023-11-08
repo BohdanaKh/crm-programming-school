@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Group } from '@prisma/client';
 
@@ -18,13 +18,10 @@ export class GroupsController {
     return await this.groupsService.getAll();
   }
 
-  // @Roles('admin', 'manager')
-  // @UseGuards(BearerAuthGuard, RoleGuard)
-  // @Post('/create')
-  // async createGroup(
-  //   // @Param('orderId') orderId: string,
-  //   @Body('title') title: string,
-  // ): Promise<Group> {
-  //   return await this.groupsService.create(title);
-  // }
+  @Roles('admin', 'manager')
+  @UseGuards(BearerAuthGuard, RoleGuard)
+  @Post()
+  async createGroup(@Body('title') title: string): Promise<Group> {
+    return await this.groupsService.create(title);
+  }
 }

@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Orders } from '@prisma/client';
+import { Orders, Prisma } from '@prisma/client';
 
 import { JWTPayload } from '../auth/models_dtos/interface';
 import { PrismaService } from '../common/orm/prisma.service';
@@ -34,6 +34,40 @@ export class OrdersService {
       managerId,
     } = query;
 
+    let where: Prisma.OrdersWhereInput = {};
+    where = {
+      AND: [
+        {
+          name: {
+            contains: name || undefined,
+          },
+        },
+        {
+          surname: {
+            contains: surname || undefined,
+          },
+        },
+        {
+          email: {
+            contains: email || undefined,
+          },
+        },
+        {
+          phone: {
+            contains: phone || undefined,
+          },
+        },
+        { age: +age || undefined },
+        course ? { course } : undefined,
+        course_format ? { course_format } : undefined,
+        course_type ? { course_type } : undefined,
+        status ? { status } : undefined,
+        group ? { group } : undefined,
+        manager ? { manager } : undefined,
+        { managerId: +managerId || undefined },
+      ].filter(Boolean),
+    };
+
     let sortOption: object;
     if (sortBy && sortBy.startsWith('-')) {
       sortOption = {
@@ -46,97 +80,35 @@ export class OrdersService {
     }
 
     const limit = 25;
+    const page = +query.page || 1;
+    const skip = (page - 1) * limit;
     const count = await this.prisma.orders.count({
-      where: {
-        AND: [
-          {
-            name: {
-              contains: name || undefined,
-            },
-          },
-          {
-            surname: {
-              contains: surname || undefined,
-            },
-          },
-          {
-            email: {
-              contains: email || undefined,
-            },
-          },
-          {
-            phone: {
-              contains: phone || undefined,
-            },
-          },
-          { age: +age || undefined },
-          course ? { course } : undefined,
-          course_format ? { course_format } : undefined,
-          course_type ? { course_type } : undefined,
-          status ? { status } : undefined,
-          group ? { group } : undefined,
-          manager ? { manager } : undefined,
-          { managerId: +managerId || undefined },
-        ].filter(Boolean),
-      },
+      where,
     });
     if (count === 0) {
       throw new NotFoundException('No orders found');
     }
-    function checkStrDigit(str: string): boolean {
-      return /^\d+$/.test(str);
-    }
-    if (
-      query.page &&
-      (+query.page > Math.ceil(count / limit) ||
-        +query.page < 1 ||
-        !checkStrDigit(query.page))
-    ) {
-      throw new BadRequestException(`Page ${query.page} is not found`);
-    }
-    const page = +query.page || 1;
-    const skip = (page - 1) * limit;
+    // function checkStrDigit(str: string): boolean {
+    //   return /^\d+$/.test(str);
+    // }
+    // if (
+    //   query.page &&
+    //   (+query.page > Math.ceil(count / limit) ||
+    //     +query.page < 1 ||
+    //     !checkStrDigit(query.page))
+    // ) {
+    //   throw new BadRequestException(`Page ${query.page} is not found`);
+    // }
+
     const entities = await this.prisma.orders.findMany({
       take: limit,
       skip: skip,
       orderBy: sortBy ? sortOption : { created_at: 'desc' },
-      where: {
-        AND: [
-          {
-            name: {
-              contains: name || undefined,
-            },
-          },
-          {
-            surname: {
-              contains: surname || undefined,
-            },
-          },
-          {
-            email: {
-              contains: email || undefined,
-            },
-          },
-          {
-            phone: {
-              contains: phone || undefined,
-            },
-          },
-          { age: +age || undefined },
-          course ? { course } : undefined,
-          course_format ? { course_format } : undefined,
-          course_type ? { course_type } : undefined,
-          status ? { status } : undefined,
-          group ? { group } : undefined,
-          manager ? { manager } : undefined,
-          { managerId: +managerId || undefined },
-        ].filter(Boolean),
-      },
+      where,
       include: {
         comments: true,
       },
     });
-
     return {
       page: page,
       pages: Math.ceil(count / limit),
@@ -182,39 +154,42 @@ export class OrdersService {
       );
     }
     try {
-      let groupName: string;
-      let newGroupId: number;
-      if (data.groupId) {
-        const existingGroup = await this.prisma.group.findUnique({
-          where: { id: +data.groupId },
-        });
-        groupName = existingGroup.title;
-      } else if (data.group) {
-        const foundGroup = await this.prisma.group.findFirst({
-          where: {
-            title: data.group,
-          },
-        });
-        if (foundGroup) {
-          newGroupId = foundGroup.id;
-        } else {
-          const newGroup = await this.prisma.group.create({
-            data: { title: data.group },
-          });
-          newGroupId = newGroup.id;
-        }
-      } else if (data.group === null) {
-        newGroupId = null;
-        groupName = null;
-      }
+      //   let groupName: string;
+      //   let newGroupId: number;
+      //   if (data.group) {
+      //     const existingGroup = await this.prisma.group.findFirst({
+      //       where: { title: data.group },
+      //     });
+      //     groupName = existingGroup.title;
+      //     if (!existingGroup) {
+      //
+      //     }
+      //   } else if (data.group) {
+      //     const foundGroup = await this.prisma.group.findFirst({
+      //       where: {
+      //         title: data.group,
+      //       },
+      //     });
+      //     if (foundGroup) {
+      //       newGroupId = foundGroup.id;
+      //     } else {
+      //       const newGroup = await this.prisma.group.create({
+      //         data: { title: data.group },
+      //       });
+      //       newGroupId = newGroup.id;
+      //     }
+      //   } else if (data.group === null) {
+      //     newGroupId = null;
+      //     groupName = null;}
+
       return await this.prisma.orders.update({
         where: {
           id: +orderId,
         },
         data: {
           ...data,
-          groupId: +data.groupId || newGroupId,
-          group: data.group || groupName,
+          // groupId: +data.groupId || newGroupId,
+          // group: data.group || groupName,
           manager: user.surname,
           managerId: +user.id,
         },

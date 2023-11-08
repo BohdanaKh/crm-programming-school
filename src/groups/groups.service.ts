@@ -10,11 +10,11 @@ export class GroupsService {
   async getAll(): Promise<Group[]> {
     return this.prisma.group.findMany();
   }
-  // async create(title: string): Promise<Group> {
-  //   return this.prisma.group.create({
-  //     data: {
-  //       title,
-  //     },
-  //   });
-  // }
+  async create(title: string): Promise<Group> {
+    return this.prisma.group.create({
+      data: {
+        title,
+      },
+    });
+  }
 }
