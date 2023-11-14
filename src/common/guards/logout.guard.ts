@@ -1,9 +1,4 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 
 // import { InjectRedisClient, RedisClient } from '@webeleon/nestjs-redis';
 import { TokenType } from '../../auth/models_dtos/enums';

@@ -5,11 +5,11 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  Param,
+  Param, Patch,
   Put,
   Query,
-  UseGuards,
-} from '@nestjs/common';
+  UseGuards
+} from "@nestjs/common";
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Orders } from '@prisma/client';

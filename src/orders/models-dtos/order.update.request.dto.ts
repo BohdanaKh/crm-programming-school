@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Course, CourseFormat, CourseType, Status } from '@prisma/client';
 import {
-  IsEmail,
   IsEnum,
   IsNumber,
   IsOptional,
@@ -30,7 +29,7 @@ export class OrderUpdateRequestDto {
   surname: string;
 
   @ApiProperty()
-  @IsEmail()
+  // @IsEmail()
   @IsOptional()
   email: string;
 
@@ -45,9 +44,9 @@ export class OrderUpdateRequestDto {
   age: number;
 
   @ApiProperty()
-  @IsEnum(Status)
+  // @IsEnum(Status)
   @IsOptional()
-  status: Status;
+  status: string;
 
   @ApiProperty()
   @IsNumber()
@@ -60,19 +59,19 @@ export class OrderUpdateRequestDto {
   already_paid: number;
 
   @ApiProperty()
-  @IsEnum(Course)
+  // @IsEnum(Course)
   @IsOptional()
-  course: Course;
+  course: string;
 
   @ApiProperty()
-  @IsEnum(CourseFormat)
+  // @IsEnum(CourseFormat)
   @IsOptional()
-  course_format: CourseFormat;
+  course_format: string;
 
   @ApiProperty()
-  @IsEnum(CourseType)
+  // @IsEnum(CourseType)
   @IsOptional()
-  course_type: CourseType;
+  course_type: string;
 
   // @ApiProperty()
   // @IsString()

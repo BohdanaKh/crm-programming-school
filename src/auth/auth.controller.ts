@@ -6,7 +6,6 @@ import {
   Param,
   Post,
   Put,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -22,6 +21,7 @@ import { LoginResponseDto } from './models_dtos/response';
 import { AuthTokenResponseDto } from './models_dtos/response/auth-token.response.dto';
 import { AuthService } from './services/auth.service';
 import { TokenService } from './services/token.service';
+import { JWTPayload } from './models_dtos/interface';
 
 @ApiTags('Login')
 @Controller()
@@ -49,16 +49,14 @@ export class AuthController {
   @Post('refresh')
   async getNewToken(
     @Body() refreshTokenDto: RefreshTokenRequestDto,
-  ): Promise<AuthTokenResponseDto> {
-    console.log(refreshTokenDto);
+  ): Promise<LoginResponseDto> {
     // const refreshToken = await this.redisClient.get(`refreshToken:${userId}`);
     // console.log(refreshToken);
     // if (!refreshToken) {
     //   throw new UnauthorizedException('No tokens found');
     // }
     const { refreshToken } = refreshTokenDto;
-    // console.log(refreshToken);
-    return this.tokenService.generateRefreshToken(refreshToken);
+    return this.authService.renewAccess(refreshToken);
   }
 
   @ApiBearerAuth()
@@ -76,11 +74,11 @@ export class AuthController {
   @Roles('admin')
   @UseGuards(BearerAuthGuard, RoleGuard)
   @HttpCode(HttpStatus.OK)
-  @Post('recovery/:userId')
+  @Post('users/recovery/:userId')
   async recoveryPasswordByAdmin(
     @Param('userId') userId: string,
-  ): Promise<void> {
-    await this.authService.generateRecoveryTokenUrl(userId);
+  ): Promise<string> {
+    return await this.authService.generateRecoveryToken(userId);
   }
 
   @ApiOperation({ description: 'Activation account by user' })

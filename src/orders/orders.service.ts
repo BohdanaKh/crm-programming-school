@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Orders, Prisma } from '@prisma/client';
+import { Orders, Prisma, Status } from '@prisma/client';
 
 import { JWTPayload } from '../auth/models_dtos/interface';
 import { PrismaService } from '../common/orm/prisma.service';
@@ -156,42 +156,66 @@ export class OrdersService {
     try {
       //   let groupName: string;
       //   let newGroupId: number;
-      //   if (data.group) {
-      //     const existingGroup = await this.prisma.group.findFirst({
-      //       where: { title: data.group },
-      //     });
+      // if (data.group) {
+      //   const existingGroup = await this.prisma.group.findFirst({
+      //     where: { title: data.group },
+      //   });
       //     groupName = existingGroup.title;
       //     if (!existingGroup) {
       //
       //     }
-      //   } else if (data.group) {
-      //     const foundGroup = await this.prisma.group.findFirst({
-      //       where: {
-      //         title: data.group,
-      //       },
-      //     });
-      //     if (foundGroup) {
-      //       newGroupId = foundGroup.id;
-      //     } else {
-      //       const newGroup = await this.prisma.group.create({
-      //         data: { title: data.group },
-      //       });
-      //       newGroupId = newGroup.id;
-      //     }
-      //   } else if (data.group === null) {
-      //     newGroupId = null;
-      //     groupName = null;}
+      //   } else
+      // let groupName: string;
+      // let newGroupId: number;
+      // const foundGroup = await this.prisma.group.findFirst({
+      //   where: {
+      //     title: data.group,
+      //   },
+      // });
+      // groupName = foundGroup.title;
+      // newGroupId = foundGroup.id;
+      // } else {
+      //   const newGroup = await this.prisma.group.create({
+      //     data: { title: data.group },
+      //   });
+      //   groupName = newGroup.title;
+      //   newGroupId = newGroup.id;
 
+      let newManager: string;
+      let newManagerId: number;
+      if (data.status === Status.New) {
+        newManager = '';
+        newManagerId = null;
+      } else {
+        newManager = user.surname;
+        newManagerId = +user.id;
+      }
+      for (const dataKey in data) {
+        if (data[dataKey] !== '') {
+          data[dataKey] = data[dataKey];
+        } else {
+          data[dataKey] = null;
+        }
+      }
       return await this.prisma.orders.update({
         where: {
           id: +orderId,
         },
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         data: {
           ...data,
-          // groupId: +data.groupId || newGroupId,
-          // group: data.group || groupName,
-          manager: user.surname,
-          managerId: +user.id,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          // group: data.group !== '' ? data.group : null,
+          // status: data.status !== '' ? data.status : null,
+          // course: data.course !== '' ? data.course : null,
+          // course_format: data.course_format !== '' ? data.course_format : null,
+          // course_type: data.course_type !== '' ? data.course_type : null,
+          // group: groupName,
+          // groupId: newGroupId,
+          manager: newManager,
+          managerId: newManagerId,
         },
       });
     } catch (error) {

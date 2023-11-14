@@ -5,6 +5,7 @@ import { Group } from '@prisma/client';
 import { Roles } from '../common/decorators';
 import { BearerAuthGuard, RoleGuard } from '../common/guards';
 import { GroupsService } from './groups.service';
+import { GroupCreateDto } from "./dto/group.create.dto";
 
 @ApiTags('Groups')
 @Controller('groups')
@@ -21,7 +22,7 @@ export class GroupsController {
   @Roles('admin', 'manager')
   @UseGuards(BearerAuthGuard, RoleGuard)
   @Post()
-  async createGroup(@Body('title') title: string): Promise<Group> {
-    return await this.groupsService.create(title);
+  async createGroup(@Body() group: GroupCreateDto): Promise<Group> {
+    return await this.groupsService.create(group);
   }
 }

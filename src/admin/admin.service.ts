@@ -12,6 +12,7 @@ export class AdminService {
       by: ['status'],
       _count: true,
     });
+
     return { totalOrdersCount, statusCounts };
   }
 }

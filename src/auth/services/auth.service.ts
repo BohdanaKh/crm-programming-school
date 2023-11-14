@@ -20,13 +20,14 @@ import { LoginResponseDto } from '../models_dtos/response';
 import { AuthTokenResponseDto } from '../models_dtos/response/auth-token.response.dto';
 import { TokenService } from './token.service';
 import { RefreshTokenRequestDto } from "../models_dtos/request/refresh-token.request.dto";
+import { TokenType } from "../models_dtos/enums";
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
     private readonly tokenService: TokenService,
-    private readonly mailService: MailService,
+    // private readonly mailService: MailService,
     private readonly userService: UserService, // private configService: AppConfigService,
   ) // @InjectRedisClient() private redisClient: RedisClient,
   {}
@@ -97,7 +98,7 @@ export class AuthService {
       throw new HttpException('User activation failed', 400);
     }
   }
-  async generateRecoveryTokenUrl(userId: string): Promise<void> {
+  async generateRecoveryToken(userId: string): Promise<string> {
     const user = await this.userService.getUserById(userId);
     try {
       const userJwtPayload: JWTPayload = {
@@ -106,31 +107,38 @@ export class AuthService {
         surname: user.surname,
         role: user.role,
       };
-      const subject = 'Recovery password';
-      const template = EEmailActions.RECOVERY_PASSWORD;
+      // const subject = 'Recovery password';
+      // const template = EEmailActions.RECOVERY_PASSWORD;
       const { recoveryToken } =
         this.tokenService.generateRecoveryToken(userJwtPayload);
-      const recoveryUrl = `${process.env.BASE_URL}/recovery/${recoveryToken}`;
-      copyPaste.copy(recoveryUrl, () => {
-        console.log('Copied to clipboard:', recoveryUrl);
-      });
-      await this.mailService.send(user.email, subject, template, {
-        recoveryUrl,
-      });
+      // const recoveryUrl = `${process.env.BASE_URL}/recovery/${recoveryToken}`;
+      // copyPaste.copy(recoveryUrl, () => {
+      //   console.log('Copied to clipboard:', recoveryUrl);
+      // });
+      // await this.mailService.send(user.email, subject, template, {
+      //   recoveryUrl,
+      // });
+      return recoveryToken;
     } catch (e) {
       throw new HttpException('Password recovery failed', 400);
     }
   }
 
-  // async renewAccess(
-  //   refreshToken: RefreshTokenRequestDto,
-  // ): Promise<AuthTokenResponseDto> {
-  //   try {
-  //     return this.tokenService.generateRefreshToken(refreshToken);
-  //   } catch (e) {
-  //     throw new UnauthorizedException();
-  //   }
-  // }
+  async renewAccess(
+    refreshToken: string,
+  ): Promise<LoginResponseDto> {
+    try {
+      const user: JWTPayload = await this.tokenService.verifyToken(
+        refreshToken,
+        TokenType.Refresh,
+      );
+      const findUser = await this.userService.findUserByEmail(user.email);
+      const token = await this.tokenService.generateRefreshToken(refreshToken);
+      return { token, user: UserMapper.toResponseDto(findUser) };
+    } catch (e) {
+      throw new UnauthorizedException();
+    }
+  }
 
   async compareHash(password: string, hash: string): Promise<boolean> {
     return bcrypt.compare(password, hash);

@@ -23,7 +23,7 @@ export class UserService {
     query: PublicUserInfoDto,
   ): Promise<PaginatedDto<UsersWithOrdersResponseDTO>> {
     const { name, surname, email, is_active } = query;
-    const limit = 10;
+    const limit = 4;
     const count = await this.prisma.user.count({
       where: {
         AND: [

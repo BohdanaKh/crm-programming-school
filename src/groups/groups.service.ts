@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { Group } from '@prisma/client';
 
 import { PrismaService } from '../common/orm/prisma.service';
+import { GroupCreateDto } from './dto/group.create.dto';
 
 @Injectable()
 export class GroupsService {
@@ -10,10 +11,18 @@ export class GroupsService {
   async getAll(): Promise<Group[]> {
     return this.prisma.group.findMany();
   }
-  async create(title: string): Promise<Group> {
+  async create(group: GroupCreateDto): Promise<Group> {
+    const existGroup = await this.prisma.group.findFirst({
+      where: {
+        title: group.title,
+      },
+    });
+    if (existGroup) {
+      throw new ConflictException(`Group ${group.title} already exists`);
+    }
     return this.prisma.group.create({
       data: {
-        title,
+        title: group.title,
       },
     });
   }
