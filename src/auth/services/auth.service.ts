@@ -5,22 +5,18 @@ import {
 } from '@nestjs/common';
 // import { InjectRedisClient, RedisClient } from '@webeleon/nestjs-redis';
 import * as bcrypt from 'bcrypt';
-import * as copyPaste from 'copy-paste';
 import * as dayjs from 'dayjs';
-import * as process from 'process';
 
-import { EEmailActions } from '../../common/mail/email.enum';
-import { MailService } from '../../common/mail/mail.service';
+// import { EEmailActions } from '../../common/mail/email.enum';
+// import { MailService } from '../../common/mail/mail.service';
 import { PrismaService } from '../../common/orm/prisma.service';
 import { UserMapper } from '../../users/users.mapper';
 import { UserService } from '../../users/users.service';
+import { TokenType } from '../models_dtos/enums';
 import { JWTPayload } from '../models_dtos/interface';
 import { UserLoginDto } from '../models_dtos/request';
 import { LoginResponseDto } from '../models_dtos/response';
-import { AuthTokenResponseDto } from '../models_dtos/response/auth-token.response.dto';
 import { TokenService } from './token.service';
-import { RefreshTokenRequestDto } from "../models_dtos/request/refresh-token.request.dto";
-import { TokenType } from "../models_dtos/enums";
 
 @Injectable()
 export class AuthService {
@@ -28,9 +24,8 @@ export class AuthService {
     private prisma: PrismaService,
     private readonly tokenService: TokenService,
     // private readonly mailService: MailService,
-    private readonly userService: UserService, // private configService: AppConfigService,
-  ) // @InjectRedisClient() private redisClient: RedisClient,
-  {}
+    private readonly userService: UserService, // @InjectRedisClient() private redisClient: RedisClient,
+  ) {}
 
   async login(loginUser: UserLoginDto): Promise<LoginResponseDto> {
     const findUser = await this.userService.findUserByEmail(loginUser.email);
@@ -86,10 +81,6 @@ export class AuthService {
       const { activationToken } =
         await this.tokenService.generateActivationToken(userJwtPayload);
       // const activationUrl = `${process.env.BASE_URL}/activate/${activationToken}`;
-      // copyPaste.copy(activationUrl, () => {
-      //   console.log('Copied to clipboard:', activationUrl);
-      // });
-      //
       // await this.mailService.send(user.email, subject, template, {
       //   activationUrl,
       // });
@@ -112,9 +103,6 @@ export class AuthService {
       const { recoveryToken } =
         this.tokenService.generateRecoveryToken(userJwtPayload);
       // const recoveryUrl = `${process.env.BASE_URL}/recovery/${recoveryToken}`;
-      // copyPaste.copy(recoveryUrl, () => {
-      //   console.log('Copied to clipboard:', recoveryUrl);
-      // });
       // await this.mailService.send(user.email, subject, template, {
       //   recoveryUrl,
       // });
@@ -124,9 +112,7 @@ export class AuthService {
     }
   }
 
-  async renewAccess(
-    refreshToken: string,
-  ): Promise<LoginResponseDto> {
+  async renewAccess(refreshToken: string): Promise<LoginResponseDto> {
     try {
       const user: JWTPayload = await this.tokenService.verifyToken(
         refreshToken,
