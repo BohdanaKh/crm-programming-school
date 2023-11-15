@@ -41,18 +41,4 @@ export class AppConfigService {
   get recoveryTokenExpiration(): string {
     return this.appConfiguration.recoveryTokenExpiration;
   }
-  get emailUser(): string {
-    return this.appConfiguration.emailUser;
-  }
-  get emailPassword(): string {
-    return this.appConfiguration.emailPassword;
-  }
-
-  get port(): number {
-    return Number(this.appConfiguration.port);
-  }
-
-  get host(): string {
-    return this.appConfiguration.host;
-  }
 }

@@ -4,8 +4,8 @@ import { Group } from '@prisma/client';
 
 import { Roles } from '../common/decorators';
 import { BearerAuthGuard, RoleGuard } from '../common/guards';
+import { GroupCreateDto } from './dto';
 import { GroupsService } from './groups.service';
-import { GroupCreateDto } from "./dto/group.create.dto";
 
 @ApiTags('Groups')
 @Controller('groups')

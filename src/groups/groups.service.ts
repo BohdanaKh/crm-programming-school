@@ -2,7 +2,7 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { Group } from '@prisma/client';
 
 import { PrismaService } from '../common/orm/prisma.service';
-import { GroupCreateDto } from './dto/group.create.dto';
+import { GroupCreateDto } from './dto';
 
 @Injectable()
 export class GroupsService {

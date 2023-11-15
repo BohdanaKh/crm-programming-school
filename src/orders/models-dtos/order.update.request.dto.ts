@@ -1,18 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Course, CourseFormat, CourseType, Status } from '@prisma/client';
-import {
-  IsEnum,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class OrderUpdateRequestDto {
-  // @ApiProperty()
-  // @IsString()
-  // @IsOptional()
-  // groupId: string;
-
   @ApiProperty()
   @IsString()
   @IsOptional()
@@ -29,7 +18,6 @@ export class OrderUpdateRequestDto {
   surname: string;
 
   @ApiProperty()
-  // @IsEmail()
   @IsOptional()
   email: string;
 
@@ -44,7 +32,6 @@ export class OrderUpdateRequestDto {
   age: number;
 
   @ApiProperty()
-  // @IsEnum(Status)
   @IsOptional()
   status: string;
 
@@ -59,27 +46,14 @@ export class OrderUpdateRequestDto {
   already_paid: number;
 
   @ApiProperty()
-  // @IsEnum(Course)
   @IsOptional()
   course: string;
 
   @ApiProperty()
-  // @IsEnum(CourseFormat)
   @IsOptional()
   course_format: string;
 
   @ApiProperty()
-  // @IsEnum(CourseType)
   @IsOptional()
   course_type: string;
-
-  // @ApiProperty()
-  // @IsString()
-  // @IsOptional()
-  // utm: string;
-  //
-  // @ApiProperty()
-  // @IsString()
-  // @IsOptional()
-  // msg: string;
 }

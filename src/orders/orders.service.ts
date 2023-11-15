@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Orders, Prisma, Status } from '@prisma/client';
+import { Orders, Status } from '@prisma/client';
 
 import { JWTPayload } from '../auth/models_dtos/interface';
 import { PrismaService } from '../common/orm/prisma.service';
@@ -34,8 +34,8 @@ export class OrdersService {
       managerId,
     } = query;
 
-    let where: Prisma.OrdersWhereInput = {};
-    where = {
+    // let where: Prisma.OrdersWhereInput = {};
+    const where = {
       AND: [
         {
           name: {
@@ -88,17 +88,6 @@ export class OrdersService {
     if (count === 0) {
       throw new NotFoundException('No orders found');
     }
-    // function checkStrDigit(str: string): boolean {
-    //   return /^\d+$/.test(str);
-    // }
-    // if (
-    //   query.page &&
-    //   (+query.page > Math.ceil(count / limit) ||
-    //     +query.page < 1 ||
-    //     !checkStrDigit(query.page))
-    // ) {
-    //   throw new BadRequestException(`Page ${query.page} is not found`);
-    // }
 
     const entities = await this.prisma.orders.findMany({
       take: limit,
@@ -130,18 +119,6 @@ export class OrdersService {
     return order;
   }
 
-  // async findOne(orderId: string): Promise<Orders> {
-  //   const order = await this.prisma.orders.findUnique({
-  //     where: { id: +orderId },
-  //   });
-  //
-  //   if (!order) {
-  //     throw new NotFoundException(`Order with ID ${orderId} is not found`);
-  //   }
-  //
-  //   return order;
-  // }
-
   async update(
     user: JWTPayload,
     orderId: string,
@@ -154,33 +131,6 @@ export class OrdersService {
       );
     }
     try {
-      //   let groupName: string;
-      //   let newGroupId: number;
-      // if (data.group) {
-      //   const existingGroup = await this.prisma.group.findFirst({
-      //     where: { title: data.group },
-      //   });
-      //     groupName = existingGroup.title;
-      //     if (!existingGroup) {
-      //
-      //     }
-      //   } else
-      // let groupName: string;
-      // let newGroupId: number;
-      // const foundGroup = await this.prisma.group.findFirst({
-      //   where: {
-      //     title: data.group,
-      //   },
-      // });
-      // groupName = foundGroup.title;
-      // newGroupId = foundGroup.id;
-      // } else {
-      //   const newGroup = await this.prisma.group.create({
-      //     data: { title: data.group },
-      //   });
-      //   groupName = newGroup.title;
-      //   newGroupId = newGroup.id;
-
       let newManager: string;
       let newManagerId: number;
       if (data.status === Status.New) {
@@ -205,15 +155,6 @@ export class OrdersService {
         // @ts-ignore
         data: {
           ...data,
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          // group: data.group !== '' ? data.group : null,
-          // status: data.status !== '' ? data.status : null,
-          // course: data.course !== '' ? data.course : null,
-          // course_format: data.course_format !== '' ? data.course_format : null,
-          // course_type: data.course_type !== '' ? data.course_type : null,
-          // group: groupName,
-          // groupId: newGroupId,
           manager: newManager,
           managerId: newManagerId,
         },

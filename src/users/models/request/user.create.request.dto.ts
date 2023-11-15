@@ -17,29 +17,4 @@ export class UserCreateRequestDto {
   @IsString()
   @IsNotEmpty()
   surname: string;
-
-  // @ApiProperty()
-  // @IsString()
-  // @IsOptional()
-  // password: string;
-
-  // @ApiProperty()
-  // @IsBoolean()
-  // @IsOptional()
-  // is_active: boolean;
-  //
-  // @ApiProperty()
-  // @IsDate()
-  // @IsOptional()
-  // last_login: string;
-  //
-  // @ApiProperty()
-  // @IsDate()
-  // @IsOptional()
-  // created_at: Date;
-  //
-  // @ApiProperty()
-  // @IsEnum(Role)
-  // @IsOptional()
-  // role: Role;
 }

@@ -8,7 +8,7 @@ import { Comment, Status } from '@prisma/client';
 
 import { JWTPayload } from '../auth/models_dtos/interface';
 import { PrismaService } from '../common/orm/prisma.service';
-import { CommentCreateDto } from './dto/comment.create.dto';
+import { CommentCreateDto } from './dto';
 
 @Injectable()
 export class CommentsService {
@@ -56,9 +56,4 @@ export class CommentsService {
       throw new BadRequestException('Comment creation failed');
     }
   }
-  // async getCommentsByOrderId(orderId: string): Promise<Comment[]> {
-  //   return this.prisma.comment.findMany({
-  //     where: { orderId: +orderId },
-  //   });
-  // }
 }

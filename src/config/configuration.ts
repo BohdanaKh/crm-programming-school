@@ -19,8 +19,4 @@ export default registerAs(configToken, () => ({
   recoveryTokenExpiration: configService.get<string>(
     'RECOVERY_TOKEN_EXPIRATION',
   ),
-  emailUser: configService.get<string>('EMAIL_USER'),
-  emailPassword: configService.get<string>('EMAIL_PASSWORD'),
-  port: configService.get<number>('GMAIL_PORT'),
-  host: configService.get<string>('GMAIL_HOST'),
 }));

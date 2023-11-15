@@ -5,11 +5,11 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  Param, Patch,
+  Param,
   Put,
   Query,
-  UseGuards
-} from "@nestjs/common";
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Orders } from '@prisma/client';
@@ -37,11 +37,6 @@ export class OrdersController {
     return this.ordersService.findAllWithPagination(query);
   }
 
-  // @Get(':orderId')
-  // async findOne(@Param('orderId') orderId: string): Promise<Orders> {
-  //   return await this.ordersService.findOne(orderId);
-  // }
-
   @Roles('admin', 'manager')
   @UseGuards(BearerAuthGuard, RoleGuard)
   @Get(':orderId')
@@ -62,11 +57,6 @@ export class OrdersController {
     @Param('orderId') orderId: string,
     @Body() body: OrderUpdateRequestDto,
   ): Promise<Orders> {
-    // if (body.group && body.groupId) {
-    //   throw new BadRequestException(
-    //     'You can only provide "group" or "groupId," not both.',
-    //   );
-    // }
     return await this.ordersService.update(user, orderId, body);
   }
 

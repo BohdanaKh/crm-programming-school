@@ -6,7 +6,7 @@ import { JWTPayload } from '../auth/models_dtos/interface';
 import { CurrentUser, Roles } from '../common/decorators';
 import { BearerAuthGuard, RoleGuard } from '../common/guards';
 import { CommentsService } from './comments.service';
-import { CommentCreateDto } from "./dto/comment.create.dto";
+import { CommentCreateDto } from './dto';
 
 @ApiTags('Comments')
 @Controller('comments')
@@ -23,13 +23,4 @@ export class CommentsController {
   ): Promise<Comment> {
     return await this.commentsService.createComment(user, orderId, comment);
   }
-
-  // @Roles('admin', 'manager')
-  // @UseGuards(BearerAuthGuard, RoleGuard)
-  // @Get(':orderId')
-  // async getCommentsByOrderId(
-  //   @Param('orderId') orderId: string,
-  // ): Promise<Comment[]> {
-  //   return await this.commentsService.getCommentsByOrderId(orderId);
-  // }
 }

@@ -1,15 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-// import { RedisModule } from '@webeleon/nestjs-redis';
-import * as process from 'process';
 
+// import { RedisModule } from '@webeleon/nestjs-redis';
 import { AdminModule } from './admin/admin.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { PassportWrapperModule } from './auth/passport-wrapper.module';
 import { CommentsModule } from './comments/comments.module';
-import { MailModule } from './common/mail.module';
 import { PrismaService } from './common/orm/prisma.service';
 import { AppConfigModule } from './config/config.module';
 import configuration from './config/configuration';
@@ -31,7 +29,6 @@ import { UserModule } from './users/users.module';
     OrdersModule,
     UserModule,
     CommentsModule,
-    MailModule,
     PassportWrapperModule,
     AdminModule,
     CommentsModule,

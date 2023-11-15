@@ -7,8 +7,6 @@ import {
 import * as bcrypt from 'bcrypt';
 import * as dayjs from 'dayjs';
 
-// import { EEmailActions } from '../../common/mail/email.enum';
-// import { MailService } from '../../common/mail/mail.service';
 import { PrismaService } from '../../common/orm/prisma.service';
 import { UserMapper } from '../../users/users.mapper';
 import { UserService } from '../../users/users.service';
@@ -23,7 +21,6 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private readonly tokenService: TokenService,
-    // private readonly mailService: MailService,
     private readonly userService: UserService, // @InjectRedisClient() private redisClient: RedisClient,
   ) {}
 
@@ -76,14 +73,8 @@ export class AuthService {
         surname: user.surname,
         role: user.role,
       };
-      // const subject = 'Activate account';
-      // const template = EEmailActions.ACTIVATE;
       const { activationToken } =
         await this.tokenService.generateActivationToken(userJwtPayload);
-      // const activationUrl = `${process.env.BASE_URL}/activate/${activationToken}`;
-      // await this.mailService.send(user.email, subject, template, {
-      //   activationUrl,
-      // });
       return activationToken;
     } catch (e) {
       throw new HttpException('User activation failed', 400);
@@ -98,14 +89,8 @@ export class AuthService {
         surname: user.surname,
         role: user.role,
       };
-      // const subject = 'Recovery password';
-      // const template = EEmailActions.RECOVERY_PASSWORD;
       const { recoveryToken } =
         this.tokenService.generateRecoveryToken(userJwtPayload);
-      // const recoveryUrl = `${process.env.BASE_URL}/recovery/${recoveryToken}`;
-      // await this.mailService.send(user.email, subject, template, {
-      //   recoveryUrl,
-      // });
       return recoveryToken;
     } catch (e) {
       throw new HttpException('Password recovery failed', 400);

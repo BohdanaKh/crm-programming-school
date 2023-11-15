@@ -1,10 +1,8 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-// import { RedisModule } from '@webeleon/nestjs-redis';
-import * as process from 'process';
 
-import { MailModule } from '../common/mail.module';
+// import { RedisModule } from '@webeleon/nestjs-redis';
 import { PrismaService } from '../common/orm/prisma.service';
 import { AppConfigModule } from '../config/config.module';
 import { AppConfigService } from '../config/configuration.service';
@@ -36,12 +34,8 @@ const JwtRegistrationOptions = {
     AppConfigModule,
     UserModule,
     OrdersModule,
-    MailModule,
     PassportModule.register({ defaultStrategy: 'bearer' }),
     JwtModule.registerAsync(JwtRegistrationOptions),
-    // ConfigModule.forRoot({
-    //   load: [configuration],
-    // }),
   ],
   providers: [
     AuthService,

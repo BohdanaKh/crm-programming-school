@@ -15,13 +15,14 @@ import { Roles } from '../common/decorators';
 import { BearerAuthGuard, LogoutGuard, RoleGuard } from '../common/guards';
 import { UserService } from '../users/users.service';
 import { TokenType } from './models_dtos/enums';
-import { ActivateUserDto, UserLoginDto } from './models_dtos/request';
-import { RefreshTokenRequestDto } from './models_dtos/request/refresh-token.request.dto';
+import {
+  ActivateUserDto,
+  RefreshTokenRequestDto,
+  UserLoginDto,
+} from './models_dtos/request';
 import { LoginResponseDto } from './models_dtos/response';
-import { AuthTokenResponseDto } from './models_dtos/response/auth-token.response.dto';
 import { AuthService } from './services/auth.service';
 import { TokenService } from './services/token.service';
-import { JWTPayload } from './models_dtos/interface';
 
 @ApiTags('Login')
 @Controller()
