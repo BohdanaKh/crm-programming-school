@@ -89,12 +89,13 @@ export class PublicOrderInfoDto {
   @ApiProperty()
   @IsString()
   @IsOptional()
-  @IsEnum(['static', 'online'])
+  @IsEnum([CourseFormat])
   course_format: CourseFormat;
 
   @ApiProperty()
   @IsString()
   @IsOptional()
+  @IsEnum([CourseType])
   course_type: CourseType;
 
   @ApiProperty()

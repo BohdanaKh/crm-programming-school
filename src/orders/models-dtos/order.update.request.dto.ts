@@ -18,6 +18,7 @@ export class OrderUpdateRequestDto {
   surname: string;
 
   @ApiProperty()
+  @IsString()
   @IsOptional()
   email: string;
 
@@ -32,6 +33,7 @@ export class OrderUpdateRequestDto {
   age: number;
 
   @ApiProperty()
+  @IsString()
   @IsOptional()
   status: string;
 
@@ -46,14 +48,17 @@ export class OrderUpdateRequestDto {
   already_paid: number;
 
   @ApiProperty()
+  @IsString()
   @IsOptional()
   course: string;
 
   @ApiProperty()
+  @IsString()
   @IsOptional()
   course_format: string;
 
   @ApiProperty()
+  @IsString()
   @IsOptional()
   course_type: string;
 }
