@@ -155,6 +155,7 @@ export class OrdersService {
         // @ts-ignore
         data: {
           ...data,
+          age: typeof data.age === 'string' ? +data.age : data.age,
           manager: newManager,
           managerId: newManagerId,
         },

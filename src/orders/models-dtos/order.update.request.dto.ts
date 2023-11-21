@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class OrderUpdateRequestDto {
   @ApiProperty()
@@ -28,9 +28,9 @@ export class OrderUpdateRequestDto {
   phone: string;
 
   @ApiProperty()
-  @IsNumber()
+  @IsString()
   @IsOptional()
-  age: number;
+  age: string;
 
   @ApiProperty()
   @IsString()
@@ -38,14 +38,14 @@ export class OrderUpdateRequestDto {
   status: string;
 
   @ApiProperty()
-  @IsNumber()
+  @IsString()
   @IsOptional()
-  sum: number;
+  sum: string;
 
   @ApiProperty()
-  @IsNumber()
+  @IsString()
   @IsOptional()
-  already_paid: number;
+  already_paid: string;
 
   @ApiProperty()
   @IsString()
