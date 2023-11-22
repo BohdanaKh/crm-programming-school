@@ -1,5 +1,15 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Group } from '@prisma/client';
 
 import { Roles } from '../common/decorators';
@@ -24,5 +34,16 @@ export class GroupsController {
   @Post()
   async createGroup(@Body() group: GroupCreateDto): Promise<Group> {
     return await this.groupsService.create(group);
+  }
+
+  @ApiOperation({
+    description: 'Deleting a group',
+  })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Roles('admin')
+  @UseGuards(BearerAuthGuard, RoleGuard)
+  @Delete(':groupId')
+  async remove(@Param('groupId') groupId: string): Promise<void> {
+    await this.groupsService.remove(groupId);
   }
 }

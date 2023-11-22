@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Course, CourseFormat, CourseType, Status } from '@prisma/client';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsOptional, IsString, Matches } from 'class-validator';
 
 export class PublicOrderInfoDto {
   @ApiProperty()
@@ -77,6 +77,9 @@ export class PublicOrderInfoDto {
 
   @ApiProperty()
   @IsString()
+  @Matches(/^[0-9]+$/, {
+    message: 'Age must consist of numbers',
+  })
   @IsOptional()
   age: string;
 

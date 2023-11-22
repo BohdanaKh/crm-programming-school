@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import { Group } from '@prisma/client';
 
 import { PrismaService } from '../common/orm/prisma.service';
@@ -25,5 +29,14 @@ export class GroupsService {
         title: group.title,
       },
     });
+  }
+  async remove(id: string): Promise<void> {
+    try {
+      await this.prisma.group.delete({
+        where: { id: +id },
+      });
+    } catch (error) {
+      throw new BadRequestException(`Group deletion failed for ID ${id}`);
+    }
   }
 }
