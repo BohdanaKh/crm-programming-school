@@ -57,13 +57,23 @@ export class OrdersService {
             contains: phone || undefined,
           },
         },
+        {
+          group: {
+            contains: group || undefined,
+          },
+        },
+        {
+          manager: {
+            contains: manager || undefined,
+          },
+        },
         { age: +age || undefined },
         course ? { course } : undefined,
         course_format ? { course_format } : undefined,
         course_type ? { course_type } : undefined,
         status ? { status } : undefined,
-        group ? { group } : undefined,
-        manager ? { manager } : undefined,
+        // group ? { group } : undefined,
+        // manager ? { manager } : undefined,
         { managerId: +managerId || undefined },
       ].filter(Boolean),
     };
