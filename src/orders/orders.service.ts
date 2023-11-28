@@ -89,7 +89,7 @@ export class OrdersService {
       };
     }
 
-    const limit = 25;
+    const limit = +query.limit || 25;
     const page = +query.page || 1;
     const skip = (page - 1) * limit;
     const count = await this.prisma.orders.count({
@@ -139,6 +139,16 @@ export class OrdersService {
       throw new ForbiddenException(
         `Order with ID ${orderId} is already being processed by another manager`,
       );
+    }
+    if (data.group) {
+      const existGroup = await this.prisma.group.findFirst({
+        where: {
+          title: data?.group,
+        },
+      });
+      if (!existGroup) {
+        throw new NotFoundException(`Group ${data.group} doesn't exist`);
+      }
     }
     try {
       let newManager: string;

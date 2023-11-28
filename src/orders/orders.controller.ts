@@ -9,6 +9,8 @@ import {
   Put,
   Query,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -52,6 +54,12 @@ export class OrdersController {
   @Roles('admin', 'manager')
   @UseGuards(AuthGuard(), RoleGuard)
   @Put(':orderId')
+  @UsePipes(
+    new ValidationPipe({
+      skipNullProperties: true,
+      skipMissingProperties: true,
+    }),
+  )
   async update(
     @CurrentUser() user: JWTPayload,
     @Param('orderId') orderId: string,
