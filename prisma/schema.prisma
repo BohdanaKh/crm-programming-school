@@ -12,7 +12,7 @@ model Orders {
   name          String?       @db.VarChar(25)
   surname       String?       @db.VarChar(25)
   email         String?       @db.VarChar(100)
-  phone         String?       @db.VarChar(12)
+  phone         String?       @db.VarChar(18)
   age           Int?
   course        Course?
   course_format CourseFormat?
