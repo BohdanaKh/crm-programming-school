@@ -2,6 +2,8 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Course, CourseFormat, CourseType, Status } from '@prisma/client';
 import { IsEnum, IsOptional, IsString, Matches } from 'class-validator';
 
+import { IsRegexMatch } from '../decorators';
+
 export class PublicOrderInfoDto {
   @ApiProperty()
   @IsString()
@@ -48,11 +50,17 @@ export class PublicOrderInfoDto {
   @ApiProperty()
   @IsString()
   @IsOptional()
+  @IsRegexMatch(/^([1-9]|1\d|20)$/, {
+    message: 'Page must be from 1 to 20',
+  })
   page: string;
 
   @ApiProperty()
   @IsString()
   @IsOptional()
+  @IsRegexMatch(/^([1-9]|[1-9]\d{0,2}|[1-4]\d{2}|500)$/, {
+    message: 'Limit must be from 1 to 500',
+  })
   limit: string;
 
   @ApiProperty()
@@ -78,7 +86,7 @@ export class PublicOrderInfoDto {
   @ApiProperty()
   @IsString()
   @Matches(/^[0-9]+$/, {
-    message: 'Age must consist of numbers',
+    message: 'Age must consist of positive numbers',
   })
   @IsOptional()
   age: string;
@@ -120,5 +128,24 @@ export class PublicOrderInfoDto {
   @ApiProperty()
   @IsString()
   @IsOptional()
+  @Matches(/^[0-9]+$/, {
+    message: 'Id must consist of positive numbers',
+  })
   managerId: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  @IsRegexMatch(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[01])$/, {
+    message: 'Date must be in YYYY-MM-DD format',
+  })
+  start_date: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  @IsRegexMatch(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[01])$/, {
+    message: 'Date must be in YYYY-MM-DD format',
+  })
+  end_date: string;
 }

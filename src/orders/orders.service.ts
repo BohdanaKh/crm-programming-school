@@ -32,9 +32,13 @@ export class OrdersService {
       group,
       manager,
       managerId,
+      start_date,
+      end_date,
     } = query;
-
-    // let where: Prisma.OrdersWhereInput = {};
+    const endOfDayOfStartDate = new Date(start_date);
+    endOfDayOfStartDate.setUTCHours(23, 59, 59, 999);
+    const endOfDayOfEndDate = new Date(end_date);
+    endOfDayOfEndDate.setUTCHours(23, 59, 59, 999);
     const where = {
       AND: [
         {
@@ -67,6 +71,15 @@ export class OrdersService {
             contains: manager || undefined,
           },
         },
+        {
+          created_at:
+            start_date || end_date
+              ? {
+                  gte: start_date ? new Date(start_date) : new Date(end_date),
+                  lt: start_date ? endOfDayOfStartDate : endOfDayOfEndDate,
+                }
+              : undefined,
+        },
         { age: +age || undefined },
         course ? { course } : undefined,
         course_format ? { course_format } : undefined,
@@ -92,28 +105,32 @@ export class OrdersService {
     const limit = +query.limit || 25;
     const page = +query.page || 1;
     const skip = (page - 1) * limit;
-    const count = await this.prisma.orders.count({
-      where,
-    });
-    if (count === 0) {
-      throw new NotFoundException('No orders found');
-    }
+    try {
+      const count = await this.prisma.orders.count({
+        where,
+      });
+      if (count === 0) {
+        throw new NotFoundException('No orders found');
+      }
 
-    const entities = await this.prisma.orders.findMany({
-      take: limit,
-      skip: skip,
-      orderBy: sortBy ? sortOption : { created_at: 'desc' },
-      where,
-      include: {
-        comments: true,
-      },
-    });
-    return {
-      page: page,
-      pages: Math.ceil(count / limit),
-      countItem: count,
-      entities,
-    };
+      const entities = await this.prisma.orders.findMany({
+        take: limit,
+        skip: skip,
+        orderBy: sortBy ? sortOption : { created_at: 'desc' },
+        where,
+        include: {
+          comments: true,
+        },
+      });
+      return {
+        page: page,
+        pages: Math.ceil(count / limit),
+        countItem: count,
+        entities,
+      };
+    } catch (e) {
+      throw new BadRequestException('Nothing was found on your request');
+    }
   }
 
   async getOrderWithComments(orderId: string): Promise<Orders> {
