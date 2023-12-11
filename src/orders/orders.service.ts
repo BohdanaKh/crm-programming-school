@@ -76,7 +76,7 @@ export class OrdersService {
             start_date || end_date
               ? {
                   gte: start_date ? new Date(start_date) : new Date(end_date),
-                  lt: start_date ? endOfDayOfStartDate : endOfDayOfEndDate,
+                  lt: end_date ? endOfDayOfEndDate : endOfDayOfStartDate,
                 }
               : undefined,
         },
